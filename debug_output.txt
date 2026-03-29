@@ -1,0 +1,3 @@
+--- STARTING DATA FLOW LOG ---
+Logging in...
+Auth error: fetch failed

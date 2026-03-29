@@ -1,0 +1,94 @@
+src/engine/step-executor.ts(19,11): error TS2322: Type '{ success: boolean; error: string | null; }' is not assignable to type 'StepResult'.
+  Types of property 'error' are incompatible.
+    Type 'string | null' is not assignable to type 'string | undefined'.
+      Type 'null' is not assignable to type 'string | undefined'.
+src/pages/ClienteDetalhes.tsx(132,23): error TS2322: Type '{ hidden: { y: number; opacity: number; }; visible: { y: number; opacity: number; transition: { type: string; stiffness: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type 'Variant'.
+      Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues$1 | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/pages/ClienteDetalhes.tsx(150,23): error TS2322: Type '{ hidden: { y: number; opacity: number; }; visible: { y: number; opacity: number; transition: { type: string; stiffness: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type 'Variant'.
+      Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues$1 | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/pages/ClienteDetalhes.tsx(166,23): error TS2322: Type '{ hidden: { y: number; opacity: number; }; visible: { y: number; opacity: number; transition: { type: string; stiffness: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type 'Variant'.
+      Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues$1 | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/pages/ClienteDetalhes.tsx(199,25): error TS2322: Type '{ hidden: { y: number; opacity: number; }; visible: { y: number; opacity: number; transition: { type: string; stiffness: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type 'Variant'.
+      Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues$1 | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/pages/ClienteDetalhes.tsx(213,25): error TS2322: Type '{ hidden: { y: number; opacity: number; }; visible: { y: number; opacity: number; transition: { type: string; stiffness: number; }; }; }' is not assignable to type 'Variants'.
+  Property 'visible' is incompatible with index signature.
+    Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type 'Variant'.
+      Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type 'TargetAndTransition'.
+        Type '{ y: number; opacity: number; transition: { type: string; stiffness: number; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues$1 | undefined; }'.
+          Types of property 'transition' are incompatible.
+            Type '{ type: string; stiffness: number; }' is not assignable to type 'Transition<any> | undefined'.
+              Type '{ type: string; stiffness: number; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+                Type '{ type: string; stiffness: number; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                  Types of property 'type' are incompatible.
+                    Type 'string' is not assignable to type 'AnimationGeneratorType | undefined'.
+src/pages/Dashboard.tsx(40,50): error TS2345: Argument of type '"get_dashboard_stats"' is not assignable to parameter of type '"get_user_stats"'.
+src/pages/Dashboard.tsx(80,39): error TS2339: Property 'delivered_messages' does not exist on type 'string | number | true | { [key: string]: Json | undefined; } | Json[]'.
+  Property 'delivered_messages' does not exist on type 'string'.
+src/pages/Dashboard.tsx(81,38): error TS2339: Property 'total_messages' does not exist on type 'string | number | true | { [key: string]: Json | undefined; } | Json[]'.
+  Property 'total_messages' does not exist on type 'string'.
+src/pages/Dashboard.tsx(81,61): error TS2339: Property 'delivered_messages' does not exist on type 'string | number | true | { [key: string]: Json | undefined; } | Json[]'.
+  Property 'delivered_messages' does not exist on type 'string'.
+src/pages/Dashboard.tsx(141,48): error TS2339: Property 'total_clients' does not exist on type 'string | number | boolean | { [key: string]: Json | undefined; } | Json[]'.
+  Property 'total_clients' does not exist on type 'string'.
+src/pages/Dashboard.tsx(142,47): error TS2339: Property 'total_messages' does not exist on type 'string | number | boolean | { [key: string]: Json | undefined; } | Json[]'.
+  Property 'total_messages' does not exist on type 'string'.
+src/pages/Dashboard.tsx(143,50): error TS2339: Property 'response_rate' does not exist on type 'string | number | boolean | { [key: string]: Json | undefined; } | Json[]'.
+  Property 'response_rate' does not exist on type 'string'.
+src/pages/Dashboard.tsx(144,47): error TS2339: Property 'active_campaigns' does not exist on type 'string | number | boolean | { [key: string]: Json | undefined; } | Json[]'.
+  Property 'active_campaigns' does not exist on type 'string'.
+src/pages/Dashboard.tsx(291,56): error TS2339: Property 'response_rate' does not exist on type 'string | number | boolean | { [key: string]: Json | undefined; } | Json[]'.
+  Property 'response_rate' does not exist on type 'string'.
+src/pages/Dashboard.tsx(294,99): error TS2339: Property 'response_rate' does not exist on type 'string | number | boolean | { [key: string]: Json | undefined; } | Json[]'.
+  Property 'response_rate' does not exist on type 'string'.
+src/seed.ts(84,13): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: { id?: string | undefined; user_id: string; organization_id?: string | null | undefined; name: string; description?: string | null | undefined; status?: "active" | "draft" | "paused" | "archived" | undefined; created_at?: string | undefined; updated_at?: string | undefined; }, options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
+    Argument of type '{ name: string; status: string; user_id: string; }[]' is not assignable to parameter of type '{ id?: string | undefined; user_id: string; organization_id?: string | null | undefined; name: string; description?: string | null | undefined; status?: "active" | "draft" | "paused" | "archived" | undefined; created_at?: string | undefined; updated_at?: string | undefined; }'.
+      Type '{ name: string; status: string; user_id: string; }[]' is missing the following properties from type '{ id?: string | undefined; user_id: string; organization_id?: string | null | undefined; name: string; description?: string | null | undefined; status?: "active" | "draft" | "paused" | "archived" | undefined; created_at?: string | undefined; updated_at?: string | undefined; }': user_id, name
+  Overload 2 of 2, '(values: { id?: string | undefined; user_id: string; organization_id?: string | null | undefined; name: string; description?: string | null | undefined; status?: "active" | "draft" | "paused" | "archived" | undefined; created_at?: string | undefined; updated_at?: string | undefined; }[], options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
+    Argument of type '{ name: string; status: string; user_id: string; }[]' is not assignable to parameter of type '{ id?: string | undefined; user_id: string; organization_id?: string | null | undefined; name: string; description?: string | null | undefined; status?: "active" | "draft" | "paused" | "archived" | undefined; created_at?: string | undefined; updated_at?: string | undefined; }[]'.
+      Type '{ name: string; status: string; user_id: string; }' is not assignable to type '{ id?: string | undefined; user_id: string; organization_id?: string | null | undefined; name: string; description?: string | null | undefined; status?: "active" | "draft" | "paused" | "archived" | undefined; created_at?: string | undefined; updated_at?: string | undefined; }'.
+        Types of property 'status' are incompatible.
+          Type 'string' is not assignable to type '"active" | "draft" | "paused" | "archived" | undefined'.
+src/workflow-builder/WorkflowBuilder.tsx(105,52): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(values: { id?: string | undefined; workflow_id: string; step_order: number; step_type: "condition" | "send_message" | "wait" | "add_tag" | "remove_tag" | "start_campaign" | "webhook"; config?: Json | undefined; user_id: string; created_at?: string | undefined; }, options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
+    Argument of type '{ workflow_id: string; step_type: any; config: any; step_order: number; }[]' is not assignable to parameter of type '{ id?: string | undefined; workflow_id: string; step_order: number; step_type: "condition" | "send_message" | "wait" | "add_tag" | "remove_tag" | "start_campaign" | "webhook"; config?: Json | undefined; user_id: string; created_at?: string | undefined; }'.
+      Type '{ workflow_id: string; step_type: any; config: any; step_order: number; }[]' is missing the following properties from type '{ id?: string | undefined; workflow_id: string; step_order: number; step_type: "condition" | "send_message" | "wait" | "add_tag" | "remove_tag" | "start_campaign" | "webhook"; config?: Json | undefined; user_id: string; created_at?: string | undefined; }': workflow_id, step_order, step_type, user_id
+  Overload 2 of 2, '(values: { id?: string | undefined; workflow_id: string; step_order: number; step_type: "condition" | "send_message" | "wait" | "add_tag" | "remove_tag" | "start_campaign" | "webhook"; config?: Json | undefined; user_id: string; created_at?: string | undefined; }[], options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
+    Argument of type '{ workflow_id: string; step_type: any; config: any; step_order: number; }[]' is not assignable to parameter of type '{ id?: string | undefined; workflow_id: string; step_order: number; step_type: "condition" | "send_message" | "wait" | "add_tag" | "remove_tag" | "start_campaign" | "webhook"; config?: Json | undefined; user_id: string; created_at?: string | undefined; }[]'.
+      Property 'user_id' is missing in type '{ workflow_id: string; step_type: any; config: any; step_order: number; }' but required in type '{ id?: string | undefined; workflow_id: string; step_order: number; step_type: "condition" | "send_message" | "wait" | "add_tag" | "remove_tag" | "start_campaign" | "webhook"; config?: Json | undefined; user_id: string; created_at?: string | undefined; }'.
