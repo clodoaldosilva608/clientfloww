@@ -15,14 +15,13 @@ export const dashboardService = {
       if (!organizationId) return { data: null, error: "Unauthorized" };
 
       // Executa RPC (Step 7 & 8)
-      // Nota: get_user_stats foi criado na Fase 1, mas o ideal seria get_organization_stats.
-      // Vou assumir que o sistema usa organization_id como chave de busca no backend agora.
-      const { data, error } = await supabase.rpc("get_dashboard_stats", { 
+      // Nota: get_dashboard_stats existe no banco mas pode não estar nos tipos gerados.
+      const { data, error } = await (supabase as any).rpc("get_dashboard_stats", { 
         p_organization_id: organizationId
       });
 
       if (!error && data) {
-        return { data: data as unknown as DashboardStats, error: null };
+        return { data: data as DashboardStats, error: null };
       }
 
       console.warn("[Dashboard] RPC falhou, iniciando fallback manual...", error);
