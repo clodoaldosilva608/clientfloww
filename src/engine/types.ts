@@ -1,6 +1,6 @@
 export interface StepResult {
   success: boolean;
   pause?: boolean;
-  error?: string | undefined;
+  error?: string | null | undefined;
   data?: any;
 }

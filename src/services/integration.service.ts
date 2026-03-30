@@ -38,7 +38,6 @@ export const integrationService = {
           user_id: user.id,
           organization_id: organizationId,
           platform,
-          provider: platform, // Fix for not-null constraint error on provider column
           is_active: isActive,
           config: config as any,
           updated_at: new Date().toISOString(),

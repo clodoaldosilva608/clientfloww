@@ -31,7 +31,7 @@ export const stepExecutor = {
           return { success: false, error: `Unknown step type: ${step.step_type}` };
       }
     } catch (e: any) {
-      return { success: false, error: String(e.message ?? e) };
+      return { success: false, error: e.message };
     }
   },
 

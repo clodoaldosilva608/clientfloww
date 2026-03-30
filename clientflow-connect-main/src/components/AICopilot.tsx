@@ -326,10 +326,20 @@ export function AICopilot() {
                   </div>
                   <div className="bg-zinc-900/80 border border-white/5 rounded-2xl px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <div className="flex gap-1">
-                        <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
-                        <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }} />
-                        <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }} />
+                      <div className="flex gap-1.5">
+                        {[0, 1, 2].map((i) => (
+                          <motion.span
+                            key={i}
+                            animate={{ y: [0, -5, 0], opacity: [0.5, 1, 0.5] }}
+                            transition={{
+                              duration: 0.8,
+                              repeat: Infinity,
+                              delay: i * 0.15,
+                              ease: "easeInOut",
+                            }}
+                            className="h-1.5 w-1.5 rounded-full bg-primary shadow-primary/50"
+                          />
+                        ))}
                       </div>
                       <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
                         IA processando...
