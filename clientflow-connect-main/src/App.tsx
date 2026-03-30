@@ -27,6 +27,7 @@ import { ThemeProvider } from "next-themes";
 import NotFound from "./pages/NotFound";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { I18nProvider } from "./i18n/useTranslation";
+import { AICopilot } from "./components/AICopilot";
 import { WhiteLabelProvider } from "./hooks/useWhiteLabel";
 
 const queryClient = new QueryClient({
@@ -130,6 +131,7 @@ const App = () => {
                 } />
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              <AICopilot />
             </BrowserRouter>
             <Sonner />
               </TooltipProvider>
