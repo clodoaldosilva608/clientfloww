@@ -28,6 +28,7 @@ import { QueueMonitor } from "@/components/QueueMonitor";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { useTranslation } from "@/i18n/useTranslation";
 import type { MessageLog } from "@/types/database";
+import { AIDashboardCards } from "@/components/AIDashboardCards";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -205,6 +206,9 @@ export default function Dashboard() {
           </motion.div>
         ))}
       </div>
+
+      {/* AI Dashboard Cards (Phase 7) */}
+      <AIDashboardCards />
 
       {/* Main Bento Grid */}
       <div className="grid grid-cols-12 gap-6 pb-20">

@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, Megaphone, CalendarClock, Menu,
   UserPlus, History, Settings, Zap, Plug, LogOut, Activity,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, BrainCircuit, CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -26,6 +26,8 @@ const allNavItems = [
   { path: "/historico", label: "Histórico", icon: History },
   { path: "/automacoes/builder", label: "Workflow Builder", icon: Zap },
   { path: "/integracoes", label: "Integrações", icon: Plug },
+  { path: "/billing", label: "Planos & Billing", icon: CreditCard },
+  { path: "/ai", label: "Nexus AI", icon: BrainCircuit },
   { path: "/admin/monitor", label: "Monitor Engine", icon: Activity },
   { path: "/configuracoes", label: "Configurações", icon: Settings },
 ];
