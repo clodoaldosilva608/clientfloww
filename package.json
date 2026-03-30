@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "vercel-build": "npm install && NODE_OPTIONS='--max-old-space-size=4096' vite build",
+    "vercel-build": "rm -rf node_modules package-lock.json && npm install --force && NODE_OPTIONS='--max-old-space-size=4096' vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
