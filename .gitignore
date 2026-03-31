@@ -48,3 +48,12 @@ vercel_deploy.log
 ip.txt
 node_test.txt
 hello.txt
+
+# Helper scripts
+debug_flow.js
+diagnose.js
+diagnose_db.js
+final_audit.cjs
+fix_vercel_api.js
+test_flow.js
+test_insert.js
