@@ -7,9 +7,17 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Build output
 dist
 dist-ssr
+
+# Environment files (contain secrets)
+.env
+.env.local
+.env.*.local
 *.local
 
 # Editor directories and files
@@ -23,4 +31,20 @@ dist-ssr
 *.sln
 *.sw?
 
+# Vercel
 .vercel
+
+# Vite timestamp files
+vite.config.ts.timestamp-*
+
+# Debug/test temp files
+debug_output.txt
+dev_log.txt
+tsc_output.txt
+current_tsc_errors.txt
+current_tsc_errors_utf8.txt
+vite_log.txt
+vercel_deploy.log
+ip.txt
+node_test.txt
+hello.txt
