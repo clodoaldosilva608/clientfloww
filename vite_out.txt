@@ -10,3 +10,5 @@ Port 8080 is in use, trying another one...
   [32mÔ×£[39m  [1mNetwork[22m: [36mhttp://192.168.1.4:[1m8081[22m/[39m
   [32mÔ×£[39m  [1mNetwork[22m: [36mhttp://172.23.128.1:[1m8081[22m/[39m
 [2m09:13:11[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/AICopilot.tsx, /src/index.css[22m
+[2m10:19:08[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css, /src/pages/AIAnalytics.tsx, /src/components/AICopilot.tsx[22m
+[2m10:19:28[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css, /src/pages/AIAnalytics.tsx, /src/components/AICopilot.tsx[22m

@@ -156,8 +156,11 @@ export function useAI(): UseAIReturn {
   useEffect(() => {
     if (!orgId) return;
 
+    // Generate a unique channel ID to avoid collisions if multiple components use this hook
+    const channelId = `ai-realtime-${orgId}-${Math.random().toString(36).substring(7)}`;
+    
     const channel = supabase
-      .channel(`ai-realtime-${orgId}`)
+      .channel(channelId)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "clients", filter: `organization_id=eq.${orgId}` },
