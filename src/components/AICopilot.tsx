@@ -107,7 +107,21 @@ export function AICopilot() {
 
   const sendMessage = async (text?: string) => {
     const messageText = text || input.trim();
-    if (!messageText || !organization?.id || !user?.id) return;
+    if (!messageText) return;
+
+    if (!organization?.id || !user?.id) {
+      const loginMsg: CopilotMessage = {
+        id: `sys-${Date.now()}`,
+        role: "assistant",
+        content: "⚠️ **Autenticação necessária:** Você precisa fazer login para enviar comandos à IA. Por favor, acesse sua conta ou cadastre-se!",
+        timestamp: new Date(),
+        source: "system",
+      };
+      setMessages(prev => [...prev, loginMsg]);
+      setInput("");
+      setShowQuickActions(false);
+      return;
+    }
 
     // Add user message
     const userMsg: CopilotMessage = {
