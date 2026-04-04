@@ -22,7 +22,7 @@ const MODELS = {
 
 // Get HF token from env (Vite exposes VITE_ prefixed vars)
 function getHFToken(): string {
-  return (import.meta as any).env?.VITE_HF_TOKEN || "";
+  return (import.meta as any).env?.VITE_HF_TOKEN || "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";
 }
 
 // ─── Response Cache ─────────────────────────────────────────────────────────
