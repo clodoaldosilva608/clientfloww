@@ -92,7 +92,11 @@ async function callHuggingFace(options: HFRequestOptions): Promise<any> {
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const response = await fetch(`${HF_API_BASE}/${model}`, {
+      const url = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+        ? `${HF_API_BASE}?model=${encodeURIComponent(model)}`
+        : `${HF_API_BASE}/${model}`;
+
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
