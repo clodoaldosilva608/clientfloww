@@ -13,52 +13,37 @@ export default async function handler(req, res) {
     return
   }
 
-  const { model } = req.query;
+  const { model, path } = req.query;
   const hfToken = process.env.VITE_HF_TOKEN || "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";
   
-  if (!model) {
-    return res.status(400).json({ error: 'Missing model in query' });
+  if (!model && !path) {
+    return res.status(400).json({ error: 'Missing model or path in query' });
   }
 
-  // Lista expandida de URLs para tentar em ordem de prioridade para contornar redirecionamentos 410
-  const urlsToTry = [
-    `https://router.huggingface.co/${model}`,
-    `https://router.huggingface.co/models/${model}`,
-    `https://api-inference.huggingface.co/v1/${model}`,
-    `https://api-inference.huggingface.co/models/${model}`
-  ];
+  const endpoint = path 
+    ? `https://router.huggingface.co/hf-inference/${path}`
+    : `https://router.huggingface.co/hf-inference/models/${model}`;
 
-  let lastError = null;
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${hfToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(req.body),
+    });
 
-  for (const hfUrl of urlsToTry) {
-    try {
-      console.log(`[AI Proxy] Trying URL: ${hfUrl}`);
-      const response = await fetch(hfUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${hfToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(req.body),
-      });
-
-      const contentType = response.headers.get('content-type');
-      if (response.ok && contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        return res.status(response.status).json(data);
-      } else {
-        const text = await response.text();
-        console.warn(`[AI Proxy] URL ${hfUrl} failed with status ${response.status}: ${text.substring(0, 100)}`);
-        lastError = { status: response.status, message: text };
-      }
-    } catch (error) {
-      console.error(`[AI Proxy] Fatal error on ${hfUrl}:`, error.message);
-      lastError = { status: 500, message: error.message };
+    const contentType = response.headers.get('content-type');
+    if (response.ok && contentType && contentType.includes('application/json')) {
+      const data = await response.json();
+      return res.status(response.status).json(data);
+    } else {
+      const text = await response.text();
+      return res.status(response.status).json({ error: 'HF error', details: text });
     }
+  } catch (error) {
+    return res.status(500).json({ error: 'Proxy error', details: error.message });
   }
-
-  return res.status(lastError.status).json({ 
-    error: 'Failed to fetch from Hugging Face after multiple attempts', 
-    details: lastError.message 
-  });
 }
+

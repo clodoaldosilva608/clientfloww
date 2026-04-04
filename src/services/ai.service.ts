@@ -12,7 +12,7 @@
 
 const HF_API_BASE = typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
   ? "/api/hf" 
-  : "https://api-inference.huggingface.co/models";
+  : "https://router.huggingface.co/hf-inference";
 
 // Models configuration
 const MODELS = {
@@ -71,7 +71,8 @@ function recordCall(): void {
 // ─── Core API Caller ────────────────────────────────────────────────────────
 
 interface HFRequestOptions {
-  model: string;
+  model?: string;
+  path?: string;
   payload: Record<string, any>;
   retries?: number;
 }
@@ -92,9 +93,15 @@ async function callHuggingFace(options: HFRequestOptions): Promise<any> {
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const url = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-        ? `${HF_API_BASE}?model=${encodeURIComponent(model)}`
-        : `${HF_API_BASE}/${model}`;
+      const isProxy = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
+      let url = "";
+      if (isProxy) {
+        if (options.path) url = `${HF_API_BASE}?path=${encodeURIComponent(options.path)}`;
+        else url = `${HF_API_BASE}?model=${encodeURIComponent(model!)}`;
+      } else {
+        if (options.path) url = `${HF_API_BASE}/${options.path}`;
+        else url = `${HF_API_BASE}/models/${model}`;
+      }
 
       const response = await fetch(url, {
         method: "POST",
@@ -141,26 +148,18 @@ export async function generateText(prompt: string): Promise<{ text: string; sour
   if (cached) return cached;
 
   try {
-    // Try Mistral first (instruction-tuned)
-    const mistralPrompt = `<s>[INST] ${prompt} [/INST]`;
-    
     const result = await callHuggingFace({
-      model: MODELS.textGeneration,
+      path: "v1/chat/completions",
       payload: {
-        inputs: mistralPrompt,
-        parameters: {
-          max_new_tokens: 500,
-          temperature: 0.7,
-          top_p: 0.9,
-          do_sample: true,
-          return_full_text: false,
-        },
+        model: MODELS.textGeneration,
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 500,
+        temperature: 0.7,
       },
     });
 
-    const text = Array.isArray(result) && result[0]?.generated_text
-      ? result[0].generated_text.trim()
-      : typeof result === "string" ? result : JSON.stringify(result);
+    const text = result.choices?.[0]?.message?.content?.trim() || 
+                 (typeof result === "string" ? result : JSON.stringify(result));
 
     const response = { text, source: "huggingface" as const };
     setCachedResponse(cacheKey, response);
