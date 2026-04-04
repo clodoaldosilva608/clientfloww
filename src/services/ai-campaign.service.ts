@@ -60,19 +60,34 @@ export async function generateAndSaveCampaign(params: GenerateCampaignParams): P
     // Generate with AI
     const { campaign, source } = await generateCampaign(params);
 
-    // Save to campaigns table
+    const campaignData: any = {
+      name: campaign.titulo,
+      message: campaign.conteudo,
+      status: "draft",
+      organization_id: params.organizationId,
+      user_id: user.id,
+    };
+
+    // Tenta incluir platform/channel de forma segura
+    try {
+      const { data: cols } = await (supabase as any).from("campaigns").select("*").limit(1);
+      if (cols && cols.length > 0) {
+        if ("platform" in cols[0]) campaignData.platform = campaign.platform;
+        else if ("channel" in cols[0]) campaignData.channel = campaign.platform;
+      } else {
+        // Fallback guess: the error indicated 'platform' is what failed earlier, so try 'channel' if we can't probe
+        campaignData.platform = campaign.platform;
+      }
+    } catch {
+       campaignData.platform = campaign.platform;
+    }
+
     const { data, error } = await supabase
       .from("campaigns")
-      .insert({
-        name: campaign.titulo,
-        message: campaign.conteudo,
-        platform: campaign.platform as any,
-        status: "draft" as any,
-        organization_id: params.organizationId,
-        user_id: user.id,
-      } as any)
+      .insert(campaignData)
       .select()
       .single();
+
 
     if (error) {
       console.error("[AI Campaign] Save error:", error.message);

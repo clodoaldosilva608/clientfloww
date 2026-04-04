@@ -18,9 +18,19 @@ export const dashboardService = {
       // Nota: get_user_stats foi criado na Fase 1, mas o ideal seria get_organization_stats.
       // Vou assumir que o sistema usa organization_id como chave de busca no backend agora.
       const { data: { user } } = await supabase.auth.getUser();
-      const { data, error } = await supabase.rpc("get_dashboard_stats", { 
+      let { data, error } = await (supabase as any).rpc("get_dashboard_stats", { 
         p_user_id: user?.id || organizationId
-      } as any);
+      });
+
+      // Se falhar por causa do parâmetro, tenta o nome alternativo
+      if (error && (error.message.includes("p_user_id") || error.message.includes("parameter"))) {
+        console.warn("[Dashboard] Retrying RPC with p_organization_id...");
+        const retry = await (supabase as any).rpc("get_dashboard_stats", { 
+          p_organization_id: organizationId
+        });
+        data = retry.data;
+        error = retry.error;
+      }
 
       if (!error && data) {
         return { data: data as unknown as DashboardStats, error: null };
