@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing model in query' });
   }
 
-  const hfUrl = `https://api-inference.huggingface.co/models/${model}`;
+  const hfUrl = `https://router.huggingface.co/models/${model}`;
   
   try {
     const response = await fetch(hfUrl, {
