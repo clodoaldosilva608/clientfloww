@@ -4,6 +4,10 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/api/hf/:match*",
+      "destination": "https://api-inference.huggingface.co/:match*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

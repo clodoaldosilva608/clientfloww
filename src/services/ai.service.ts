@@ -10,7 +10,9 @@
  * Falls back to local template when HF is unavailable.
  */
 
-const HF_API_BASE = "https://api-inference.huggingface.co/models";
+const HF_API_BASE = typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
+  ? "/api/hf" 
+  : "https://api-inference.huggingface.co/models";
 
 // Models configuration
 const MODELS = {
