@@ -20,10 +20,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing model in query' });
   }
 
-  // Lista de URLs para tentar em ordem de prioridade
+  // Lista expandida de URLs para tentar em ordem de prioridade para contornar redirecionamentos 410
   const urlsToTry = [
-    `https://router.huggingface.co/models/${model}`,
     `https://router.huggingface.co/${model}`,
+    `https://router.huggingface.co/models/${model}`,
+    `https://api-inference.huggingface.co/v1/${model}`,
     `https://api-inference.huggingface.co/models/${model}`
   ];
 
