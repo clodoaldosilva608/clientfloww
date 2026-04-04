@@ -5,7 +5,7 @@
   "rewrites": [
     {
       "source": "/api/hf/:match*",
-      "destination": "https://api-inference.huggingface.co/:match*"
+      "destination": "https://api-inference.huggingface.co/models/:match*"
     },
     {
       "source": "/(.*)",

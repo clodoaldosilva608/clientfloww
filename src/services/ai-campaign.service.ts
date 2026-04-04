@@ -68,25 +68,36 @@ export async function generateAndSaveCampaign(params: GenerateCampaignParams): P
       user_id: user.id,
     };
 
-    // Tenta incluir platform/channel de forma segura
-    try {
-      const { data: cols } = await (supabase as any).from("campaigns").select("*").limit(1);
-      if (cols && cols.length > 0) {
-        if ("platform" in cols[0]) campaignData.platform = campaign.platform;
-        else if ("channel" in cols[0]) campaignData.channel = campaign.platform;
-      } else {
-        // Fallback guess: the error indicated 'platform' is what failed earlier, so try 'channel' if we can't probe
-        campaignData.platform = campaign.platform;
-      }
-    } catch {
-       campaignData.platform = campaign.platform;
-    }
-
-    const { data, error } = await supabase
+    // Tenta salvar com 'platform' primeiro
+    let { data, error } = await supabase
       .from("campaigns")
-      .insert(campaignData)
+      .insert({ ...campaignData, platform: campaign.platform })
       .select()
       .single();
+
+    // Se falhar por coluna inexistente, tenta com 'channel'
+    if (error && (error.message.includes("platform") || error.message.includes("column"))) {
+      console.warn("[AI Campaign] 'platform' column failed, retrying with 'channel'...");
+      const retry = await supabase
+        .from("campaigns")
+        .insert({ ...campaignData, channel: campaign.platform })
+        .select()
+        .single();
+      data = retry.data;
+      error = retry.error;
+    }
+
+    // Se ainda falhar, tenta sem nenhuma coluna de plataforma
+    if (error && (error.message.includes("platform") || error.message.includes("channel") || error.message.includes("column"))) {
+      console.warn("[AI Campaign] 'channel' column also failed, saving without platform field...");
+      const retry = await supabase
+        .from("campaigns")
+        .insert(campaignData)
+        .select()
+        .single();
+      data = retry.data;
+      error = retry.error;
+    }
 
 
     if (error) {
