@@ -17,9 +17,10 @@ export const dashboardService = {
       // Executa RPC (Step 7 & 8)
       // Nota: get_user_stats foi criado na Fase 1, mas o ideal seria get_organization_stats.
       // Vou assumir que o sistema usa organization_id como chave de busca no backend agora.
+      const { data: { user } } = await supabase.auth.getUser();
       const { data, error } = await supabase.rpc("get_dashboard_stats", { 
-        p_organization_id: organizationId
-      });
+        p_user_id: user?.id || organizationId
+      } as any);
 
       if (!error && data) {
         return { data: data as unknown as DashboardStats, error: null };

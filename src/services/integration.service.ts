@@ -38,6 +38,7 @@ export const integrationService = {
           user_id: user.id,
           organization_id: organizationId,
           platform,
+          provider: platform,
           is_active: isActive,
           config: config as any,
           updated_at: new Date().toISOString(),

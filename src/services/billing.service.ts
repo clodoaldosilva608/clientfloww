@@ -41,7 +41,7 @@ export const billingService = {
 
       const { data, error } = await (supabase as any)
         .from("subscriptions")
-        .select("*, plan:plans(*)")
+        .select("*")
         .eq("organization_id", organizationId)
         .order("created_at", { ascending: false })
         .limit(1)
@@ -50,6 +50,22 @@ export const billingService = {
       if (error) {
         console.error("[Billing] Failed to fetch subscription:", error.message);
         return { data: null, error: error.message };
+      }
+
+      if (data) {
+        const planId = data.plan_id || data.plan;
+        // Se existir um ID de plano (ou nome), busca na tabela plans
+        if (planId && typeof planId === "string") {
+          const { data: planData } = await (supabase as any)
+             .from("plans")
+             .select("*")
+             .eq("id", planId)
+             .maybeSingle();
+          
+          if (planData) {
+             data.plan = planData;
+          }
+        }
       }
 
       return { data: data as Subscription | null, error: null };
