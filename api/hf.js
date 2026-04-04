@@ -20,22 +20,44 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing model in query' });
   }
 
-  const hfUrl = `https://router.huggingface.co/models/${model}`;
-  
-  try {
-    const response = await fetch(hfUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${hfToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(req.body),
-    });
+  // Lista de URLs para tentar em ordem de prioridade
+  const urlsToTry = [
+    `https://router.huggingface.co/models/${model}`,
+    `https://router.huggingface.co/${model}`,
+    `https://api-inference.huggingface.co/models/${model}`
+  ];
 
-    const data = await response.json();
-    return res.status(response.status).json(data);
-  } catch (error) {
-    console.error('[AI Proxy Error]:', error.message);
-    return res.status(500).json({ error: 'Failed to fetch from Hugging Face', details: error.message });
+  let lastError = null;
+
+  for (const hfUrl of urlsToTry) {
+    try {
+      console.log(`[AI Proxy] Trying URL: ${hfUrl}`);
+      const response = await fetch(hfUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${hfToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(req.body),
+      });
+
+      const contentType = response.headers.get('content-type');
+      if (response.ok && contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        return res.status(response.status).json(data);
+      } else {
+        const text = await response.text();
+        console.warn(`[AI Proxy] URL ${hfUrl} failed with status ${response.status}: ${text.substring(0, 100)}`);
+        lastError = { status: response.status, message: text };
+      }
+    } catch (error) {
+      console.error(`[AI Proxy] Fatal error on ${hfUrl}:`, error.message);
+      lastError = { status: 500, message: error.message };
+    }
   }
+
+  return res.status(lastError.status).json({ 
+    error: 'Failed to fetch from Hugging Face after multiple attempts', 
+    details: lastError.message 
+  });
 }
