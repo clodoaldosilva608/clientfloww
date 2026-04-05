@@ -16,13 +16,15 @@ export default async function handler(req, res) {
   const { model, path } = req.query;
   const hfToken = process.env.VITE_HF_TOKEN || "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";
   
-  if (!model && !path) {
+  const hfModel = model || req.body?.model;
+  
+  if (!hfModel && !path) {
     return res.status(400).json({ error: 'Missing model or path in query' });
   }
 
   const endpoint = path 
-    ? `https://router.huggingface.co/hf-inference/${path}`
-    : `https://router.huggingface.co/hf-inference/models/${model}`;
+    ? `https://api-inference.huggingface.co/models/${hfModel}/${path}`
+    : `https://api-inference.huggingface.co/models/${hfModel}`;
 
   try {
     const response = await fetch(endpoint, {

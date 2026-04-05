@@ -12,7 +12,7 @@
 
 const HF_API_BASE = typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
   ? "/api/hf" 
-  : "https://router.huggingface.co/hf-inference";
+  : "https://api-inference.huggingface.co";
 
 // Models configuration
 const MODELS = {
@@ -97,10 +97,10 @@ async function callHuggingFace(options: HFRequestOptions): Promise<any> {
       let url = "";
       if (isProxy) {
         if (options.path) url = `${HF_API_BASE}?path=${encodeURIComponent(options.path)}`;
-        else url = `${HF_API_BASE}?model=${encodeURIComponent(model!)}`;
+        else url = `${HF_API_BASE}?model=${encodeURIComponent(model || options.payload.model)}`;
       } else {
-        if (options.path) url = `${HF_API_BASE}/${options.path}`;
-        else url = `${HF_API_BASE}/models/${model}`;
+        if (options.path) url = `${HF_API_BASE}/models/${options.payload.model || model}/${options.path}`;
+        else url = `${HF_API_BASE}/models/${model || options.payload.model}`;
       }
 
       const response = await fetch(url, {
