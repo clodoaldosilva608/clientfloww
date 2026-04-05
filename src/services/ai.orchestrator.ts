@@ -336,72 +336,52 @@ export async function runAutonomousSellCycle(
     // 2. Auto-create campaign for at-risk clients
     const atRiskClients = report.results.filter(r => r.segment === "em_risco");
     if (atRiskClients.length > 0) {
-      const result = await generateAndSaveCampaign({
+      const result = await generateCampaign({
         segmento: "em_risco",
         objetivo: "reativação",
         organizationId,
       });
 
-      if (result.data) {
+      if (result.campaign) {
         campaignsCreated++;
         clientsTargeted += atRiskClients.length;
-        actions.push(`🚨 Campanha de reativação criada para ${atRiskClients.length} clientes em risco`);
-
-        // Auto-target the campaign
-        const targets = atRiskClients.map(c => ({
-          campaign_id: result.data!.id,
-          client_id: c.clientId,
-          organization_id: organizationId,
-          status: "pending",
-        }));
-
-        await (supabase as any).from("campaign_targets").insert(targets);
-        actions.push(`📎 ${targets.length} clientes vinculados à campanha`);
+        actions.push(`🚨 [Proposta] Campanha de reativação para ${atRiskClients.length} clientes em risco. (Aguardando aprovação)`);
       }
     }
 
     // 3. Auto-create campaign for inactive clients
     const inactiveClients = report.results.filter(r => r.segment === "inativo");
     if (inactiveClients.length > 3) {
-      const result = await generateAndSaveCampaign({
+      const result = await generateCampaign({
         segmento: "inativos",
         objetivo: "reativação",
         organizationId,
       });
 
-      if (result.data) {
+      if (result.campaign) {
         campaignsCreated++;
         clientsTargeted += inactiveClients.length;
-        actions.push(`😴 Campanha para inativos criada: ${inactiveClients.length} clientes`);
-
-        const targets = inactiveClients.slice(0, 50).map(c => ({
-          campaign_id: result.data!.id,
-          client_id: c.clientId,
-          organization_id: organizationId,
-          status: "pending",
-        }));
-
-        await (supabase as any).from("campaign_targets").insert(targets);
+        actions.push(`😴 [Proposta] Campanha para inativos: ${inactiveClients.length} clientes. (Aguardando aprovação)`);
       }
     }
 
     // 4. Auto-create VIP engagement campaign
     const vipClients = report.results.filter(r => r.segment === "vip");
     if (vipClients.length > 0) {
-      const result = await generateAndSaveCampaign({
+      const result = await generateCampaign({
         segmento: "VIP",
         objetivo: "fidelização",
         organizationId,
       });
 
-      if (result.data) {
+      if (result.campaign) {
         campaignsCreated++;
         clientsTargeted += vipClients.length;
-        actions.push(`👑 Campanha VIP criada para ${vipClients.length} clientes`);
+        actions.push(`👑 [Proposta] Campanha VIP para ${vipClients.length} clientes. (Aguardando aprovação)`);
       }
     }
 
-    actions.push(`✅ Ciclo autônomo concluído: ${campaignsCreated} campanhas, ${clientsTargeted} clientes`);
+    actions.push(`⚠️ Requer sua aprovação! ${campaignsCreated} campanhas sugeridas para ${clientsTargeted} clientes.`);
 
   } catch (err: any) {
     actions.push(`❌ Erro no ciclo autônomo: ${err.message}`);
