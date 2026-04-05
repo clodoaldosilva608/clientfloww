@@ -80,46 +80,26 @@ async function handleCreateCampaign(
   organizationId: string
 ): Promise<OrchestratorResponse> {
   try {
-    // Extract segment from message
     const segmento = extractSegment(userMessage);
     const objetivo = extractObjective(userMessage);
 
-    const result = await generateAndSaveCampaign({
-      segmento,
-      objetivo,
-      organizationId,
-    });
+    const { text, source } = await generateText(
+      `Crie uma campanha de marketing. Segmento: ${segmento}, Objetivo: ${objetivo}. Contexto: "${userMessage}". Seja persuasivo e inclua CTA. Máximo 4 frases.`
+    );
 
-    if (result.error) {
-      return {
-        message: `Não consegui salvar a campanha: ${result.error}. Mas posso gerar o conteúdo para você copiar!`,
-        action: "create_campaign_error",
-        source: "system",
-        executedAction: false,
-      };
-    }
-
-    const campaign = result.data!;
     return {
-      message: `✅ Campanha criada com sucesso!\n\n📌 **${campaign.name}**\n\n💬 Mensagem:\n${campaign.message}\n\n📱 Plataforma: ${campaign.platform}\n📋 Status: Rascunho (pronta para revisão)\n\nA campanha foi salva e está pronta para envio!`,
-      action: "create_campaign",
-      data: { campaignId: campaign.id, campaignName: campaign.name },
-      source: "ai",
-      executedAction: true,
+      message: `🤖 **Proposta de Campanha Pronta:**\n\n📌 **Segmento:** ${segmento}\n📌 **Objetivo:** ${objetivo}\n\n💬 **Texto Sugerido:**\n${text}\n\n⚠️ **Ação Necessária:** Eu não executo nem salvo campanhas sem sua aprovação. Para prosseguir, por favor crie manualmente na aba "Campanhas" copiando este texto, ou use os botões rápidos.`,
+      action: "propose_campaign",
+      data: { generatedText: text },
+      source: source === "huggingface" ? "ai" : "fallback",
+      executedAction: false,
     };
   } catch (err: any) {
-    console.error("[Orchestrator] Campaign creation error:", err);
-    
-    // Still generate text even if save fails
-    const { text } = await generateText(
-      `Crie uma campanha de marketing. Tom persuasivo, com CTA. Contexto: ${userMessage}`
-    );
-    
+    console.error("[Orchestrator] Campaign proposition error:", err);
     return {
-      message: `⚠️ Não consegui salvar automaticamente, mas gerei o conteúdo:\n\n${text}\n\nVocê pode copiar e criar a campanha manualmente.`,
-      action: "create_campaign_fallback",
-      data: { generatedText: text },
-      source: "ai",
+      message: `❌ Não consegui elaborar o conteúdo: ${err.message}`,
+      action: "create_campaign_error",
+      source: "system",
       executedAction: false,
     };
   }
@@ -128,7 +108,7 @@ async function handleCreateCampaign(
 async function handleSegmentClients(organizationId: string): Promise<OrchestratorResponse> {
   try {
     const { data: report, error } = await segmentarClientesAutomaticamente(organizationId, {
-      autoTag: true,
+      autoTag: false, // Nunca aplica tag sozinho!
     });
 
     if (error || !report) {
@@ -140,14 +120,14 @@ async function handleSegmentClients(organizationId: string): Promise<Orchestrato
       };
     }
 
-    const { segments, totalClients, tagsApplied } = report;
+    const { segments, totalClients } = report;
 
     return {
-      message: `✅ Segmentação automática concluída!\n\n📊 **${totalClients} clientes analisados:**\n\n👑 **VIP** (score >80): ${segments.vip} clientes\n✅ **Ativos** (score 50-80): ${segments.ativo} clientes\n😴 **Inativos** (score <50): ${segments.inativo} clientes\n🚨 **Em Risco** (churn >70%): ${segments.em_risco} clientes\n\n🏷️ ${tagsApplied} tags aplicadas automaticamente.\n\nOs clientes foram tagueados e estão prontos para campanhas segmentadas!`,
-      action: "segment_clients",
-      data: { segments, totalClients, tagsApplied },
+      message: `✅ Sugestão de Análise Concluída!\n\n📊 **${totalClients} clientes analisados:**\n\n👑 **VIP** (score >80): ${segments.vip} clientes\n✅ **Ativos** (score 50-80): ${segments.ativo} clientes\n😴 **Inativos** (score <50): ${segments.inativo} clientes\n🚨 **Em Risco** (churn >70%): ${segments.em_risco} clientes\n\n⚠️ Conforme sua preferência de segurança, eu **NÃO** apliquei essas tags ainda. Por favor, confirme se devo prosseguir.`,
+      action: "propose_segment_clients",
+      data: { segments, totalClients },
       source: "system",
-      executedAction: true,
+      executedAction: false,
     };
   } catch (err: any) {
     return {

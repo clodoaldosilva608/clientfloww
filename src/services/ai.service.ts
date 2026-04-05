@@ -304,6 +304,15 @@ export async function detectIntent(
     const topLabel = result.labels[0];
     const topScore = result.scores[0];
 
+    // Se a confiança for muito baixa, assume que é uma pergunta geral (evita auto-execução acidental)
+    if (topScore < 0.3) {
+      return {
+        intent: "general_question",
+        confidence: topScore,
+        source: result.source,
+      };
+    }
+
     return {
       intent: intentMap[topLabel] || "general_question",
       confidence: topScore,
