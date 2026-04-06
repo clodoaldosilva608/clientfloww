@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   BrainCircuit, TrendingUp, AlertTriangle, Clock, Zap,
   Users, Target, ArrowRight, RefreshCw, ChevronRight,
@@ -103,9 +104,21 @@ function InsightCard({ insight, index }: { insight: AIInsight; index: number }) 
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <h4 className={`text-[11px] font-black uppercase tracking-tight ${config.text} leading-tight`}>
-            {insight.title}
-          </h4>
+          <div className="flex items-center gap-1.5">
+            <h4 className={`text-[11px] font-black uppercase tracking-tight ${config.text} leading-tight`}>
+              {insight.title}
+            </h4>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className={`h-3 w-3 ${config.text} cursor-help opacity-70 hover:opacity-100`} />
+                </TooltipTrigger>
+                <TooltipContent className="bg-zinc-900 border-white/10 text-[10px] text-white p-3 max-w-[200px]">
+                  <p><strong>Lógica da IA:</strong> {insight.metadata?.rationale || insight.description}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <div className={`h-1.5 w-1.5 rounded-full ${config.dot} shrink-0 mt-1.5 animate-pulse`} />
         </div>
         <p className="text-[10px] text-zinc-400 font-medium mt-1 leading-relaxed">

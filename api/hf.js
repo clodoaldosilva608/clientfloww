@@ -23,8 +23,8 @@ export default async function handler(req, res) {
   }
 
   const endpoint = path 
-    ? `https://api-inference.huggingface.co/models/${hfModel}/${path}`
-    : `https://api-inference.huggingface.co/models/${hfModel}`;
+    ? `https://router.huggingface.co/hf-inference/${path}`
+    : `https://router.huggingface.co/hf-inference/models/${hfModel}`;
 
   try {
     const response = await fetch(endpoint, {

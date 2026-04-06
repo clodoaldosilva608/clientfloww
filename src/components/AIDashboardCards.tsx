@@ -24,8 +24,9 @@ import { toast } from "sonner";
 import {
   BrainCircuit, AlertTriangle, Megaphone, Sparkles,
   ArrowRight, RefreshCw, Zap, Users, Target,
-  ShieldAlert, ChevronRight, Play, TrendingUp,
+  ShieldAlert, ChevronRight, Play, TrendingUp, Info
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // ─── AI Suggestion Card ─────────────────────────────────────────────────────
 
@@ -135,13 +136,22 @@ function ClientsAtRiskCard({
 
           <div className="flex items-center gap-2">
             {count > 0 && (
-              <Button
-                size="sm"
-                onClick={onAutoReactivation}
-                className="h-8 rounded-xl text-[9px] font-black uppercase gap-1.5 premium-gradient text-white shadow-lg shadow-primary/20"
-              >
-                <Play className="h-3 w-3" /> Auto-reativar
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      onClick={onAutoReactivation}
+                      className="h-8 rounded-xl text-[9px] font-black uppercase gap-1.5 premium-gradient text-white shadow-lg shadow-primary/20"
+                    >
+                      <Play className="h-3 w-3" /> Gerar Rascunho de Retenção
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-zinc-900 border-white/10 text-[10px] text-white p-3 max-w-[200px]">
+                    <p>O Nexus AI criará uma proposta automática focada nos {count} clientes usando e-mail/whatsapp.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
             <Button
               size="sm"

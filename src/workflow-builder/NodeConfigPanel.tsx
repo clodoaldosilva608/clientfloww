@@ -129,6 +129,97 @@ export const NodeConfigPanel = ({ node, onChange }: Props) => {
           </div>
         )}
 
+        {node.type === 'condition' && (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Campo de Avaliação</Label>
+              <Select value={config.field} onValueChange={(val) => updateConfig('field', val)}>
+                <SelectTrigger className="bg-zinc-900 border-zinc-800 text-xs">
+                  <SelectValue placeholder="Selecione o campo" />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                  <SelectItem value="tag">Tag do Cliente</SelectItem>
+                  <SelectItem value="days_inactive">Dias Inativo</SelectItem>
+                  <SelectItem value="engagement_score">Score de Engajamento</SelectItem>
+                  <SelectItem value="city">Cidade</SelectItem>
+                  <SelectItem value="platform">Plataforma</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Operador</Label>
+              <Select value={config.operator} onValueChange={(val) => updateConfig('operator', val)}>
+                <SelectTrigger className="bg-zinc-900 border-zinc-800 text-xs">
+                  <SelectValue placeholder="Condição" />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                  <SelectItem value="equals">É igual a</SelectItem>
+                  <SelectItem value="not_equals">É diferente de</SelectItem>
+                  <SelectItem value="contains">Contém</SelectItem>
+                  <SelectItem value="greater_than">Maior que</SelectItem>
+                  <SelectItem value="less_than">Menor que</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Valor</Label>
+              <Input 
+                className="bg-zinc-900 border-zinc-800 text-xs" 
+                placeholder="Ex: VIP, 30, São Paulo..." 
+                value={config.value || ''}
+                onChange={(e) => updateConfig('value', e.target.value)}
+              />
+            </div>
+            <div className="p-3 rounded-xl bg-info/5 border border-info/10 mt-2">
+              <p className="text-[9px] text-info font-bold leading-relaxed italic">
+                ↳ IF: Verdadeiro → segue pela saída superior<br/>
+                ↳ ELSE: Falso → segue pela saída inferior
+              </p>
+            </div>
+          </div>
+        )}
+
+        {node.type === 'add_tag' && (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Nome da Tag</Label>
+              <Input 
+                className="bg-zinc-900 border-zinc-800 text-xs" 
+                placeholder="Ex: vip, reativado, lead-quente..." 
+                value={config.tagName || ''}
+                onChange={(e) => updateConfig('tagName', e.target.value)}
+              />
+            </div>
+          </div>
+        )}
+
+        {node.type === 'webhook' && (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest ml-1">URL do Webhook</Label>
+              <Input 
+                className="bg-zinc-900 border-zinc-800 text-xs" 
+                placeholder="https://api.example.com/hook" 
+                value={config.url || ''}
+                onChange={(e) => updateConfig('url', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Método HTTP</Label>
+              <Select value={config.method || 'POST'} onValueChange={(val) => updateConfig('method', val)}>
+                <SelectTrigger className="bg-zinc-900 border-zinc-800 text-xs">
+                  <SelectValue placeholder="Método" />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                  <SelectItem value="POST">POST</SelectItem>
+                  <SelectItem value="GET">GET</SelectItem>
+                  <SelectItem value="PUT">PUT</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
         {/* Generic fields for all nodes */}
         <div className="pt-6 border-t border-zinc-800 space-y-4">
            <p className="text-[9px] text-zinc-600 font-black uppercase tracking-widest italic leading-relaxed">

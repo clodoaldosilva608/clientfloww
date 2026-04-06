@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +31,7 @@ export default function NovoCliente() {
   const [tagInput, setTagInput] = useState("");
   const [saving, setSaving] = useState(false);
   const [fetchingCep, setFetchingCep] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
     name: "", phone: "", whatsapp_id: "", email: "", city: "",
@@ -130,9 +131,24 @@ export default function NovoCliente() {
       );
     }
 
-    toast.success("Cliente ClientFlow cadastrado com sucesso!");
+    toast.success("Cliente ClientFlow cadastrado com sucesso!", {
+      description: "Você pode continuar cadastrando novos clientes.",
+    });
+    
+    // Reset form and focus
+    setForm({
+      name: "", phone: "", whatsapp_id: "", email: "", city: "",
+      telegram_chat_id: "", instagram_id: "",
+      cep: "", street: "", house_number: "", neighborhood: "",
+      state: "", complement: "", cpf: "", birth_date: "", notes: "",
+    });
+    setTags([]);
     setSaving(false);
-    navigate("/clientes");
+    
+    // Refocus name input for fast data entry
+    if (nameInputRef.current) {
+      nameInputRef.current.focus();
+    }
   };
 
   return (
@@ -179,7 +195,7 @@ export default function NovoCliente() {
              <div className="space-y-4">
                <div className="space-y-2">
                  <Label className="text-[10px] font-black uppercase tracking-widest ml-1">Nome Completo *</Label>
-                 <Input className="glass-card" placeholder="Ex: Arthur Morgan" value={form.name} onChange={e => updateField("name", e.target.value)} required />
+                 <Input ref={nameInputRef} className="glass-card" placeholder="Ex: Arthur Morgan" value={form.name} onChange={e => updateField("name", e.target.value)} required />
                </div>
                <div className="grid grid-cols-2 gap-3">
                  <div className="space-y-2">

@@ -12,7 +12,7 @@
 
 const HF_API_BASE = typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
   ? "/api/hf" 
-  : "https://api-inference.huggingface.co";
+  : "https://router.huggingface.co/hf-inference";
 
 // Models configuration
 const MODELS = {

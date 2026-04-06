@@ -19,12 +19,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tag, CheckSquare, X, ShieldAlert, Sparkles, Send } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
+import { ClienteDrawer } from "@/components/ClienteDrawer";
 
 export default function Clientes() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { organization } = useAuth();
   const [search, setSearch] = useState("");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activeClientId, setActiveClientId] = useState<string | null>(null);
 
   const { data: clients, isLoading } = useQuery({
     queryKey: ["clients", organization?.id],
@@ -172,7 +175,7 @@ export default function Clientes() {
                 exit={{ scale: 0.9, opacity: 0 }}
                 key={client.id} 
                 className="bento-item group cursor-pointer hover:border-primary/30"
-                onClick={() => navigate(`/clientes/${client.id}`)}
+                onClick={() => { setActiveClientId(client.id); setDrawerOpen(true); }}
               >
                 <div className="flex justify-between items-start mb-6">
                     <div className="flex items-center gap-3">
@@ -209,7 +212,7 @@ export default function Clientes() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="glass-card">
-                        <DropdownMenuItem onClick={() => navigate(`/clientes/${client.id}`)} className="font-bold text-[10px] uppercase">
+                        <DropdownMenuItem onClick={() => { setActiveClientId(client.id); setDrawerOpen(true); }} className="font-bold text-[10px] uppercase">
                           <Eye className="mr-2 h-3.5 w-3.5" /> Visualizar 360°
                         </DropdownMenuItem>
                         <DropdownMenuItem 
@@ -323,6 +326,15 @@ export default function Clientes() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ClienteDrawer 
+        clientId={activeClientId} 
+        open={drawerOpen} 
+        onOpenChange={(op) => {
+          setDrawerOpen(op);
+          if (!op) setTimeout(() => setActiveClientId(null), 300);
+        }} 
+      />
     </motion.div>
   );
 }
