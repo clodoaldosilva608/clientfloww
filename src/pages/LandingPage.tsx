@@ -532,7 +532,12 @@ export default function LandingPage() {
               <a href="#pricing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Preços</a>
               <a href="#faq" className="text-xs text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
             </div>
-            <p className="text-xs text-muted-foreground">© 2026 ClientFlow. Todos os direitos reservados.</p>
+            <div className="flex items-center gap-4">
+              <p className="text-xs text-muted-foreground">© 2026 ClientFlow. Todos os direitos reservados.</p>
+              <Link to="/admin/login" className="text-[9px] text-zinc-800 hover:text-zinc-500 transition-colors cursor-default select-none" title="">
+                ●
+              </Link>
+            </div>
           </div>
         </div>
       </footer>

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppLayout } from "@/components/AppLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { AdminRoute } from "@/components/AdminRoute";
 import { AuthProvider } from "@/hooks/useAuth";
 import LandingPage from "./pages/LandingPage";
 import Auth from "./pages/Auth";
@@ -21,8 +22,12 @@ import Integracoes from "./pages/Integracoes";
 import WorkflowBuilder from "./workflow-builder/WorkflowBuilder";
 import EngineMonitor from "./pages/EngineMonitor";
 import Billing from "./pages/Billing";
+import Success from "./pages/Success";
+import Cancel from "./pages/Cancel";
 import AIAnalytics from "./pages/AIAnalytics";
 import GrowthDashboard from "./pages/admin/Growth";
+import AdminPanel from "./pages/admin/AdminPanel";
+import AdminAuth from "./pages/admin/AdminAuth";
 import { ThemeProvider } from "next-themes";
 import NotFound from "./pages/NotFound";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -56,6 +61,7 @@ const App = () => {
                 <Route path="/landing" element={<LandingPage />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/admin/login" element={<AdminAuth />} />
 
                 {/* Protected routes */}
                 <Route path="/" element={
@@ -109,6 +115,16 @@ const App = () => {
                     <AppLayout><Billing /></AppLayout>
                   </ProtectedRoute>
                 } />
+                <Route path="/success" element={
+                  <ProtectedRoute>
+                    <Success />
+                  </ProtectedRoute>
+                } />
+                <Route path="/cancel" element={
+                  <ProtectedRoute>
+                    <Cancel />
+                  </ProtectedRoute>
+                } />
                 <Route path="/ai" element={
                   <ProtectedRoute>
                     <AppLayout><AIAnalytics /></AppLayout>
@@ -120,14 +136,19 @@ const App = () => {
                   </ProtectedRoute>
                 } />
                 <Route path="/admin/monitor" element={
-                  <ProtectedRoute>
+                  <AdminRoute>
                     <AppLayout><EngineMonitor /></AppLayout>
-                  </ProtectedRoute>
+                  </AdminRoute>
                 } />
                 <Route path="/admin/growth" element={
-                  <ProtectedRoute>
+                  <AdminRoute>
                     <AppLayout><GrowthDashboard /></AppLayout>
-                  </ProtectedRoute>
+                  </AdminRoute>
+                } />
+                <Route path="/admin" element={
+                  <AdminRoute>
+                    <AppLayout><AdminPanel /></AppLayout>
+                  </AdminRoute>
                 } />
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useQueryClient } from "@tanstack/react-query";
 
 const suggestedTags = [
   "fidelizado",
@@ -25,6 +26,7 @@ const suggestedTags = [
 
 export default function NovoCliente() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { organization } = useAuth();
   const { canUse, isLoading: subLoading } = useSubscription();
   const [tags, setTags] = useState<string[]>([]);
@@ -134,6 +136,10 @@ export default function NovoCliente() {
     toast.success("Cliente ClientFlow cadastrado com sucesso!", {
       description: "Você pode continuar cadastrando novos clientes.",
     });
+    
+    // FASE 5: Invalidate queries to update Dashboard and list
+    queryClient.invalidateQueries({ queryKey: ["clients"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     
     // Reset form and focus
     setForm({
