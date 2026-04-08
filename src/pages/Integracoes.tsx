@@ -198,13 +198,16 @@ function IntegrationCard({ platform, title, description, icon, color, fields, do
 
   useEffect(() => { loadConfig(); }, [loadConfig]);
 
-  const saveConfig = async () => {
+  // FIX: accept activeOverride to avoid React closure stale-state bug
+  // when called from switch toggle, pass the new value directly
+  const saveConfig = async (activeOverride?: boolean) => {
+    const activeValue = activeOverride !== undefined ? activeOverride : isActive;
     if (!organization?.id) return;
     setSaving(true);
     try {
-      const { data, error } = await integrationService.saveConfig(platform, isActive, config, organization.id);
+      const { error } = await integrationService.saveConfig(platform, activeValue, config, organization.id);
       if (error) throw new Error(error);
-      toast.success(`${title} configurado com sucesso!`);
+      toast.success(`${title} salvo com sucesso!`);
     } catch (error: any) {
       console.error(`[Integracoes] Falha ao salvar ${platform}:`, error);
       toast.error(`Erro ao salvar: ${error.message}`);
@@ -236,9 +239,13 @@ function IntegrationCard({ platform, title, description, icon, color, fields, do
                 </div>
              </div>
           </div>
-          <Switch 
+           <Switch 
             checked={isActive} 
-            onCheckedChange={(val) => { setIsActive(val); setTimeout(saveConfig, 200); }} 
+            onCheckedChange={(val) => { 
+              setIsActive(val);
+              // Pass val directly to avoid stale closure capturing old isActive
+              saveConfig(val);
+            }} 
             className="data-[state=checked]:bg-white data-[state=checked]:dark:bg-white"
           />
        </div>

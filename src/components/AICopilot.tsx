@@ -212,7 +212,7 @@ export function AICopilot() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-2xl premium-gradient shadow-2xl shadow-primary/30 flex items-center justify-center group"
+            className="fixed bottom-28 right-4 sm:bottom-6 sm:right-6 z-40 h-14 w-14 rounded-2xl premium-gradient shadow-2xl shadow-primary/30 flex items-center justify-center group"
             id="copilot-toggle"
           >
             <BrainCircuit className="h-6 w-6 text-white" />
@@ -233,9 +233,9 @@ export function AICopilot() {
             transition={{ duration: 0.3, ease: "easeOut" }}
             className={`fixed z-50 ${
               isExpanded
-                ? "inset-4 md:inset-8"
-                : "bottom-6 right-6 w-[420px] h-[600px] max-h-[85vh]"
-            } flex flex-col rounded-3xl border border-white/10 bg-zinc-950/95 backdrop-blur-3xl shadow-2xl shadow-black/40 overflow-hidden`}
+                ? "inset-2 sm:inset-8"
+                : "bottom-0 left-0 right-0 h-[85vh] sm:bottom-6 sm:right-6 sm:left-auto sm:w-[420px] sm:h-[600px] sm:max-h-[85vh]"
+            } flex flex-col rounded-t-3xl sm:rounded-3xl border border-white/10 bg-zinc-950/95 backdrop-blur-3xl shadow-2xl shadow-black/40 overflow-hidden`}
             id="copilot-panel"
           >
             {/* Header */}

@@ -4,12 +4,13 @@ import type { IntegrationConfig, ServiceResponse } from "@/types/database";
 export const integrationService = {
   async getConfig(platform: string, organizationId: string): Promise<ServiceResponse<IntegrationConfig | null>> {
     try {
-      if (!organizationId) return { data: null, error: "Unauthorized" };
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return { data: null, error: "Unauthorized" };
 
       const { data, error } = await (supabase as any)
         .from("integration_configs")
         .select("*")
-        .eq("organization_id", organizationId)
+        .eq("user_id", user.id)
         .eq("platform", platform)
         .maybeSingle();
 
@@ -36,9 +37,7 @@ export const integrationService = {
         .from("integration_configs")
         .upsert({
           user_id: user.id,
-          organization_id: organizationId,
           platform,
-          provider: platform,
           is_active: isActive,
           config: config as any,
           updated_at: new Date().toISOString(),
