@@ -15,6 +15,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useAI } from "@/hooks/useAI";
@@ -57,6 +58,7 @@ const QUICK_ACTIONS = [
 
 export function AICopilot() {
   const { organization, user } = useAuth();
+  const location = useLocation();
   const { churnSignals } = useAI();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -212,7 +214,7 @@ export function AICopilot() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-28 right-4 sm:bottom-6 sm:right-6 z-40 h-14 w-14 rounded-2xl premium-gradient shadow-2xl shadow-primary/30 flex items-center justify-center group"
+            className={`fixed bottom-[85px] right-4 sm:bottom-6 sm:right-6 z-[60] h-12 w-12 sm:h-14 sm:w-14 rounded-2xl premium-gradient shadow-2xl shadow-primary/30 flex items-center justify-center group ${!user ? 'hidden sm:flex' : ''}`}
             id="copilot-toggle"
           >
             <BrainCircuit className="h-6 w-6 text-white" />

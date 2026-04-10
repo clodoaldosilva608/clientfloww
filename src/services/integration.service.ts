@@ -10,7 +10,7 @@ export const integrationService = {
       const { data, error } = await (supabase as any)
         .from("integration_configs")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("organization_id", organizationId)
         .eq("platform", platform)
         .maybeSingle();
 
@@ -37,11 +37,12 @@ export const integrationService = {
         .from("integration_configs")
         .upsert({
           user_id: user.id,
+          organization_id: organizationId,
           platform,
           is_active: isActive,
           config: config as any,
           updated_at: new Date().toISOString(),
-        }, { onConflict: "user_id,platform" }); 
+        }, { onConflict: "organization_id,platform" }); 
 
       if (error) {
         console.error(`[Service Error] integrationService.saveConfig(${platform}):`, error.message);

@@ -45,7 +45,7 @@ Regras:
       const model = hfConfig.config.model_id || "mistralai/Mistral-7B-Instruct-v0.2";
       const hfToken = hfConfig.config.api_token;
 
-      const response = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
+      const response = await fetch(`https://router.huggingface.co/hf-inference/models/${model}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${hfToken}`,

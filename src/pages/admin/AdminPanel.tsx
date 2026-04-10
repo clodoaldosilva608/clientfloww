@@ -71,55 +71,158 @@ export default function AdminPanel() {
         </TabsContent>
 
         <TabsContent value="users">
-          <div className="bento-item">
-            <h2 className="text-lg font-black uppercase mb-4">Gestão de Usuários</h2>
-            <div className="text-sm text-zinc-500 font-bold">Módulo CRUD em construção vinculada ao Supabase Auth...</div>
+          <div className="bento-item shadow-xl border-white/5">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-black uppercase tracking-tight">Gestão de Participantes</h2>
+              <Button size="sm" className="bg-primary text-white font-bold text-[10px] uppercase rounded-xl"> + Novo Usuário </Button>
+            </div>
+            
+            <div className="overflow-x-auto rounded-xl border border-white/5 bg-zinc-900/40">
+              <table className="w-full text-left text-sm whitespace-nowrap">
+                <thead className="bg-zinc-950/50 text-[10px] uppercase font-black tracking-widest text-zinc-500">
+                  <tr>
+                    <th className="p-4">Identificação</th>
+                    <th className="p-4">Status / Nível</th>
+                    <th className="p-4">Último Acesso</th>
+                    <th className="p-4 text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  <tr className="hover:bg-white/[0.02] transition-colors">
+                     <td className="p-4">
+                       <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-black text-xs">C</div>
+                         <div>
+                           <p className="font-bold text-white">clodoaldosilva608@gmail.com</p>
+                           <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Usr-0192A</p>
+                         </div>
+                       </div>
+                     </td>
+                     <td className="p-4">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[9px] font-black uppercase tracking-widest border border-emerald-500/20">
+                          <Activity className="w-3 h-3" /> Admin
+                        </span>
+                     </td>
+                     <td className="p-4 text-xs font-bold text-zinc-400">08 Abr 2026</td>
+                     <td className="p-4 text-right flex justify-end gap-2">
+                       <Button size="sm" variant="ghost" className="h-8 text-[10px] font-bold text-primary hover:bg-primary/10">Editar</Button>
+                       <Button size="sm" variant="ghost" className="h-8 text-[10px] font-bold text-red-500 hover:bg-red-500/10">Remover</Button>
+                     </td>
+                  </tr>
+                  <tr className="hover:bg-white/[0.02] transition-colors">
+                     <td className="p-4">
+                       <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 font-black text-xs">A</div>
+                         <div>
+                           <p className="font-bold text-white">agencia@flow.com</p>
+                           <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Usr-081B</p>
+                         </div>
+                       </div>
+                     </td>
+                     <td className="p-4">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-400 text-[9px] font-black uppercase tracking-widest border border-zinc-700">
+                          Membro
+                        </span>
+                     </td>
+                     <td className="p-4 text-xs font-bold text-zinc-400">01 Abr 2026</td>
+                     <td className="p-4 text-right flex justify-end gap-2">
+                       <Button size="sm" variant="ghost" className="h-8 text-[10px] font-bold text-primary hover:bg-primary/10">Editar</Button>
+                       <Button size="sm" variant="ghost" className="h-8 text-[10px] font-bold text-red-500 hover:bg-red-500/10">Remover</Button>
+                     </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </TabsContent>
 
         <TabsContent value="settings">
-          <div className="bento-item">
-            <h2 className="text-lg font-black uppercase mb-4">Feature Flags & Planos</h2>
-            <div className="text-sm text-zinc-500 font-bold">Gerenciamento de limites de planos será renderizado aqui.</div>
+          <div className="bento-item shadow-xl border-white/5 space-y-6">
+            <h2 className="text-lg font-black uppercase tracking-tight">Preferências do Sistema</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-5 rounded-2xl bg-zinc-900/40 border border-white/5 flex flex-col gap-3">
+                <div className="flex justify-between items-center">
+                   <h3 className="font-bold text-sm tracking-wide text-white">Manutenção do Modo AI</h3>
+                   <div className="h-6 w-10 bg-primary rounded-full relative shadow-[0_0_10px_rgba(var(--primary),0.5)]">
+                     <div className="absolute right-1 top-1 h-4 w-4 bg-white rounded-full"></div>
+                   </div>
+                </div>
+                <p className="text-[11px] text-zinc-500 leading-relaxed font-medium">Desative temporariamente a geração de textos via IA para forçar fallback local.</p>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-zinc-900/40 border border-white/5 flex flex-col gap-3">
+                <div className="flex justify-between items-center">
+                   <h3 className="font-bold text-sm tracking-wide text-white">Bloqueio de Novos Registros</h3>
+                   <div className="h-6 w-10 bg-zinc-800 rounded-full relative">
+                     <div className="absolute left-1 top-1 h-4 w-4 bg-zinc-400 rounded-full"></div>
+                   </div>
+                </div>
+                <p className="text-[11px] text-zinc-500 leading-relaxed font-medium">Impede a criação de novas contas e organizações no ambiente.</p>
+              </div>
+              
+              <div className="p-5 rounded-2xl bg-zinc-900/40 border border-white/5 flex flex-col gap-3 md:col-span-2">
+                <h3 className="font-bold text-sm tracking-wide text-white">Limites Globais (Rate Limiting)</h3>
+                <div className="flex gap-4 mt-2">
+                  <div className="flex-1 space-y-1">
+                    <label className="text-[10px] uppercase font-black text-zinc-500 tracking-widest">Max Chamadas/min (HF)</label>
+                    <input type="number" defaultValue="20" className="w-full bg-black/50 border border-white/10 rounded-xl h-10 px-3 text-xs text-white" />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <label className="text-[10px] uppercase font-black text-zinc-500 tracking-widest">Envios por disparo (Cron)</label>
+                    <input type="number" defaultValue="500" className="w-full bg-black/50 border border-white/10 rounded-xl h-10 px-3 text-xs text-white" />
+                  </div>
+                </div>
+                <Button className="mt-2 text-[10px] uppercase font-black tracking-widest w-fit" size="sm">Atualizar Limites Globais</Button>
+              </div>
+            </div>
           </div>
         </TabsContent>
 
         <TabsContent value="integrations">
-          <div className="bento-item">
-            <h2 className="text-lg font-black uppercase mb-4">Módulos Externos</h2>
-            <div className="space-y-2">
-               <div className="p-4 border border-white/5 rounded-xl flex justify-between items-center bg-zinc-900/40">
-                  <div>
-                    <h4 className="font-bold uppercase text-xs">Hugging Face API</h4>
-                    <p className="text-[10px] text-zinc-500 mt-1">Conexão Ativa - Modelos Mistral & Llama</p>
+          <div className="bento-item shadow-xl border-white/5">
+            <h2 className="text-lg font-black uppercase mb-6 tracking-tight">Módulos & Conexões Externas</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div className="p-5 border border-white/5 rounded-2xl flex justify-between items-center bg-zinc-900/40 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative z-10">
+                    <h4 className="font-black uppercase text-xs tracking-wider text-white">Hugging Face API</h4>
+                    <p className="text-[10px] text-zinc-500 mt-1 font-medium">router.huggingface.co/hf-inference</p>
                   </div>
-                  <div className="h-3 w-3 rounded-full bg-success shadow-[0_0_10px_rgba(0,255,0,0.5)]" />
+                  <span className="relative z-10 px-2 py-1 bg-success/10 border border-success/20 text-success text-[9px] font-black tracking-widest uppercase rounded">Ativo</span>
                </div>
-               <div className="p-4 border border-white/5 rounded-xl flex justify-between items-center bg-zinc-900/40">
-                  <div>
-                    <h4 className="font-bold uppercase text-xs">Stripe Webhooks</h4>
-                    <p className="text-[10px] text-zinc-500 mt-1">Rotas validadas no painel de eventos.</p>
+               <div className="p-5 border border-white/5 rounded-2xl flex justify-between items-center bg-zinc-900/40 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative z-10">
+                    <h4 className="font-black uppercase text-xs tracking-wider text-white">Stripe Webhooks</h4>
+                    <p className="text-[10px] text-zinc-500 mt-1 font-medium">Assinaturas e pagamentos habilitados</p>
                   </div>
-                  <div className="h-3 w-3 rounded-full bg-success shadow-[0_0_10px_rgba(0,255,0,0.5)]" />
+                  <span className="relative z-10 px-2 py-1 bg-success/10 border border-success/20 text-success text-[9px] font-black tracking-widest uppercase rounded">Ativo</span>
                </div>
             </div>
           </div>
         </TabsContent>
 
         <TabsContent value="logs">
-          <div className="bento-item">
-            <h2 className="text-lg font-black uppercase mb-4">Log de Auditoria</h2>
-            <div className="space-y-4">
+          <div className="bento-item shadow-xl border-white/5">
+            <h2 className="text-lg font-black uppercase mb-6 tracking-tight">Log de Auditoria e Eventos</h2>
+            <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
                {logs?.map((log: any) => (
-                 <div key={log.id} className="text-xs bg-zinc-900/50 p-3 rounded-xl border border-white/5 flex gap-4 items-start">
+                 <div key={log.id} className="text-xs bg-zinc-900/40 p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between hover:bg-white/[0.02] transition">
                     <div className="flex-1">
-                      <span className="font-black uppercase text-primary">{log.action}</span> - {log.resource}
-                      <p className="text-[10px] text-zinc-500 mt-1">{log.id}</p>
+                      <span className="font-black uppercase text-primary tracking-widest text-[10px] bg-primary/10 px-2 py-1 rounded inline-block mb-2">{log.action}</span>
+                      <p className="font-bold text-white mb-1">{log.resource}</p>
+                      <p className="text-[10px] text-zinc-500 font-mono">{log.id}</p>
                     </div>
-                    <time className="text-[10px] text-zinc-500 font-bold">{new Date(log.created_at).toLocaleString()}</time>
+                    <time className="text-[10px] text-zinc-500 font-bold whitespace-nowrap bg-black/40 px-3 py-1.5 rounded-lg border border-white/5">{new Date(log.created_at).toLocaleString()}</time>
                  </div>
                ))}
-               {logs?.length === 0 && <div className="text-xs text-zinc-500 font-bold p-4 text-center">Nenhum evento registrado ainda.</div>}
+               {(!logs || logs.length === 0) && (
+                 <div className="flex flex-col items-center justify-center p-8 gap-3 border border-dashed border-white/10 rounded-2xl">
+                   <Database className="w-8 h-8 text-zinc-600 mb-2" />
+                   <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Nenhum evento registrado no período</p>
+                 </div>
+               )}
             </div>
           </div>
         </TabsContent>
