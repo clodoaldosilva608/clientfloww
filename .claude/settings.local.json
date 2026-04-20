@@ -3,6 +3,7 @@
     "allow": [
       "Bash(npm run:*)",
       "Bash(npm test:*)",
+<<<<<<< HEAD
       "Bash(npx tsc:*)",
       "Bash(find src:*)",
       "Bash(npm install:*)",
@@ -11,6 +12,9 @@
       "Bash(do echo:*)",
       "Bash(node:*)",
       "Bash(grep:*)"
+=======
+      "Bash(npx tsc:*)"
+>>>>>>> 15122f11de9aa6c0f3d858a049588b9581f7b5e8
     ]
   }
 }
