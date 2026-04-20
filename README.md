@@ -1,74 +1,61 @@
- # Welcome to your Lovable project
+# ClientFlow - Automação Avançada de Clientes
 
-## Project info
+ClientFlow é uma plataforma SaaS de automação de comunicação e gestão de clientes com motor de execução distribuído.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Principais Tecnologias
 
-## How can I edit this code?
+Este projeto foi construído utilizando:
 
-There are several ways of editing your application.
+- **Vite**: Build tool veloz para o frontend.
+- **TypeScript**: Tipagem estática para maior robustez.
+- **React**: Biblioteca para interfaces reativas.
+- **shadcn/ui**: Componentes de UI modernos e acessíveis.
+- **Tailwind CSS**: Estilização baseada em utilitários.
+- **Supabase**: Backend-as-a-service para banco de dados e autenticação.
 
-**Use Lovable**
+## Como Iniciar Localmente
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### Pré-requisitos
+- Node.js (versão 18 ou superior)
+- npm ou yarn
 
-Changes made via Lovable will be committed automatically to this repo.
+### Passos para instalação
 
-**Use your preferred IDE**
+1. **Clone o repositório**
+   ```sh
+   git clone <URL_DO_REPO>
+   ```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+2. **Navegue até o diretório**
+   ```sh
+   cd ClientFlow
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+3. **Instale as dependências**
+   ```sh
+   npm install
+   ```
 
-Follow these steps:
+4. **Inicie o servidor de desenvolvimento**
+   ```sh
+   npm run dev
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+O servidor estará disponível por padrão em `http://localhost:8080`.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Scripts Úteis
 
-# Step 3: Install the necessary dependencies.
-npm i
+- `npm run build`: Gera o bundle de produção na pasta `dist`.
+- `npm run lint`: Executa a verificação de linting.
+- `npm run preview`: Visualiza o build de produção localmente.
+- `npm run test`: Executa os testes unitários com Vitest.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## Estrutura do Projeto
 
-**Edit a file directly in GitHub**
+- `/src`: Código-fonte da aplicação React.
+- `/supabase`: Migrações e Edge Functions do backend.
+- `/public`: Assets estáticos.
+- `/tests`: Testes E2E (Playwright).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
-
+---
+Desenvolvido por ClientFlow Connect.

@@ -80,14 +80,14 @@ Regras:
       });
     }
 
-    // Default: LOVABLE / Gemini
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("Serviço de IA padrão não configurado");
+    // Default AI Service fallback
+    const AI_GATEWAY_KEY = Deno.env.get("INTERNAL_GATEWAY_KEY") || Deno.env.get("LOVABLE_API_KEY");
+    if (!AI_GATEWAY_KEY) throw new Error("Serviço de IA padrão não configurado");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${AI_GATEWAY_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

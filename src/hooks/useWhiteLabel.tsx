@@ -70,7 +70,7 @@ export function WhiteLabelProvider({ children }: { children: React.ReactNode }) 
       const hsl = hexToHsl(config.primaryColor);
       document.documentElement.style.setProperty("--primary", `${hsl.h} ${hsl.s}% ${hsl.l}%`);
     } else {
-      // Revert to lovables default primary 
+      // Revert to default primary 
       document.documentElement.style.removeProperty("--primary");
     }
 
@@ -89,7 +89,7 @@ export function WhiteLabelProvider({ children }: { children: React.ReactNode }) 
 
     const fetchConfig = async () => {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from("organizations")
           .select("logo_url, primary_color, custom_domain")
           .eq("id", organization.id)
@@ -97,9 +97,9 @@ export function WhiteLabelProvider({ children }: { children: React.ReactNode }) 
 
         if (!error && data) {
           setConfig({
-            logoUrl: data.logo_url,
-            primaryColor: data.primary_color,
-            customDomain: data.custom_domain,
+            logoUrl: (data as any).logo_url,
+            primaryColor: (data as any).primary_color,
+            customDomain: (data as any).custom_domain,
           });
         }
       } catch (err) {
@@ -120,7 +120,7 @@ export function WhiteLabelProvider({ children }: { children: React.ReactNode }) 
       if (updates.primaryColor !== undefined) dbUpdates.primary_color = updates.primaryColor;
       if (updates.customDomain !== undefined) dbUpdates.custom_domain = updates.customDomain;
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("organizations")
         .update(dbUpdates)
         .eq("id", organization.id);

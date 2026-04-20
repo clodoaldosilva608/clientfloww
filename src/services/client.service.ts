@@ -1,10 +1,15 @@
 import { supabase } from "@/lib/supabase";
-import type { Client, ClientWithTags, ClientInsert, ServiceResponse } from "@/types/database";
+import { logger } from "@/lib/logger";
+import type { Client, ServiceResponse } from "@/types/database";
+import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
 // Define extra interface for Client with its list of tags
 export interface ClientWithTags extends Client {
   tags: string[];
 }
+
+type ClientTagRow = Tables<"client_tags">;
+type ClientTagInsert = TablesInsert<"client_tags">;
 
 export const clientService = {
   async list(organizationId: string): Promise<ServiceResponse<ClientWithTags[]>> {
@@ -18,23 +23,23 @@ export const clientService = {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("[Service Error] clientService.list:", error.message);
+        logger.error("[Service Error] clientService.list:", error.message);
         return { data: null, error: error.message };
       }
 
       if (!clientsData || clientsData.length === 0) return { data: [], error: null };
       
       const clientIds = clientsData.map(c => c.id);
-      const { data: tagsData, error: tagsError } = await (supabase as any)
+      const { data: tagsData, error: tagsError } = await supabase
         .from("client_tags")
         .select("client_id, tag")
         .in("client_id", clientIds)
         .eq("organization_id", organizationId);
 
-      if (tagsError) console.warn("[Service Warning] tags load error:", tagsError.message);
+      if (tagsError) logger.warn("[Service Warning] tags load error:", tagsError.message);
 
       const tagsByClient: Record<string, string[]> = {};
-      (tagsData || []).forEach((t: any) => {
+      (tagsData || []).forEach((t: Pick<ClientTagRow, 'client_id' | 'tag'>) => {
         if (!tagsByClient[t.client_id]) tagsByClient[t.client_id] = [];
         tagsByClient[t.client_id].push(t.tag);
       });
@@ -45,9 +50,9 @@ export const clientService = {
       })) as ClientWithTags[];
 
       return { data: formatted, error: null };
-    } catch (err: any) {
-      console.error("[System Error] clientService.list critical failure:", err);
-      return { data: null, error: err.message || "Unknown error" };
+    } catch (err: unknown) {
+      logger.error("[System Error] clientService.list critical failure:", err);
+      return { data: null, error: err instanceof Error ? err.message : "Unknown error" };
     }
   },
 
@@ -62,14 +67,14 @@ export const clientService = {
         .eq("organization_id", organizationId);
 
       if (error) {
-        console.error("[Service Error] clientService.delete:", error.message);
+        logger.error("[Service Error] clientService.delete:", error.message);
         return { data: false, error: error.message };
       }
 
       return { data: true, error: null };
-    } catch (err: any) {
-      console.error("[Service Error] clientService.delete:", err);
-      return { data: false, error: err.message };
+    } catch (err: unknown) {
+      logger.error("[Service Error] clientService.delete:", err);
+      return { data: false, error: err instanceof Error ? err.message : "Unknown error" };
     }
   },
 
@@ -85,13 +90,13 @@ export const clientService = {
         .maybeSingle();
 
       if (error) {
-        console.error("[Service Error] clientService.getById:", error.message);
+        logger.error("[Service Error] clientService.getById:", error.message);
         return { data: null, error: error.message };
       }
 
       if (!clientData) return { data: null, error: "Client not found" };
 
-      const { data: tagsData } = await (supabase as any)
+      const { data: tagsData } = await supabase
         .from("client_tags")
         .select("tag")
         .eq("client_id", id)
@@ -100,13 +105,13 @@ export const clientService = {
       return {
         data: {
           ...clientData,
-          tags: (tagsData || []).map((t: any) => t.tag),
+          tags: (tagsData || []).map((t: Pick<ClientTagRow, 'tag'>) => t.tag),
         } as ClientWithTags,
         error: null
       };
-    } catch (err: any) {
-      console.error("[Service Error] clientService.getById:", err);
-      return { data: null, error: err.message };
+    } catch (err: unknown) {
+      logger.error("[Service Error] clientService.getById:", err);
+      return { data: null, error: err instanceof Error ? err.message : "Unknown error" };
     }
   },
 
@@ -117,37 +122,36 @@ export const clientService = {
 
       const { data, error } = await supabase
         .from("clients")
-        .insert({ 
-          ...client, 
-          user_id: user.id, 
-          organization_id: organizationId 
-        } as any)
+        .insert({
+          ...client,
+          user_id: user.id,
+          organization_id: organizationId
+        })
         .select()
         .single();
 
       if (error || !data) {
-        console.error("[Service Error] clientService.create:", error?.message);
+        logger.error("[Service Error] clientService.create:", error?.message);
         return { data: null, error: error?.message || "Failed to create" };
       }
 
       if (tags.length > 0) {
-        await (supabase as any).from("client_tags").insert(
-          tags.map(tag => ({ 
-            client_id: data.id, 
-            tag, 
-            user_id: user.id,
-            organization_id: organizationId
-          }))
-        );
+        const tagInserts: ClientTagInsert[] = tags.map(tag => ({
+          client_id: data.id,
+          tag,
+          user_id: user.id,
+          organization_id: organizationId
+        }));
+        await supabase.from("client_tags").insert(tagInserts);
       }
 
-      return { 
-        data: { ...data, tags } as ClientWithTags, 
-        error: null 
+      return {
+        data: { ...data, tags } as ClientWithTags,
+        error: null
       };
-    } catch (err: any) {
-      console.error("[Service Error] clientService.create:", err);
-      return { data: null, error: err.message };
+    } catch (err: unknown) {
+      logger.error("[Service Error] clientService.create:", err);
+      return { data: null, error: err instanceof Error ? err.message : "Unknown error" };
     }
   },
 
@@ -163,28 +167,27 @@ export const clientService = {
         .eq("organization_id", organizationId);
 
       if (error) {
-        console.error("[Service Error] clientService.update:", error.message);
+        logger.error("[Service Error] clientService.update:", error.message);
         return { data: false, error: error.message };
       }
 
       if (tags !== undefined) {
-        await (supabase as any).from("client_tags").delete().eq("client_id", id).eq("organization_id", organizationId);
+        await supabase.from("client_tags").delete().eq("client_id", id).eq("organization_id", organizationId);
         if (tags.length > 0) {
-          await (supabase as any).from("client_tags").insert(
-            tags.map(tag => ({ 
-              client_id: id, 
-              tag, 
-              user_id: user.id, 
-              organization_id: organizationId 
-            }))
-          );
+          const tagInserts: ClientTagInsert[] = tags.map(tag => ({
+            client_id: id,
+            tag,
+            user_id: user.id,
+            organization_id: organizationId
+          }));
+          await supabase.from("client_tags").insert(tagInserts);
         }
       }
 
       return { data: true, error: null };
-    } catch (err: any) {
-      console.error("[Service Error] clientService.update:", err);
-      return { data: false, error: err.message };
+    } catch (err: unknown) {
+      logger.error("[Service Error] clientService.update:", err);
+      return { data: false, error: err instanceof Error ? err.message : "Unknown error" };
     }
   },
 
@@ -196,12 +199,12 @@ export const clientService = {
         .delete()
         .in("id", ids)
         .eq("organization_id", organizationId);
-      
+
       if (error) throw error;
       return { data: true, error: null };
-    } catch (err: any) {
-      console.error("[Service Error] clientService.deleteMany:", err);
-      return { data: false, error: err.message };
+    } catch (err: unknown) {
+      logger.error("[Service Error] clientService.deleteMany:", err);
+      return { data: false, error: err instanceof Error ? err.message : "Unknown error" };
     }
   },
 
@@ -210,20 +213,20 @@ export const clientService = {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !organizationId || ids.length === 0) return { data: false, error: "Unauthorized" };
 
-      const records = ids.map(clientId => ({
+      const records: ClientTagInsert[] = ids.map(clientId => ({
         client_id: clientId,
         tag: tag.trim().toLowerCase(),
         user_id: user.id,
         organization_id: organizationId
       }));
 
-      const { error } = await (supabase as any).from("client_tags").insert(records);
+      const { error } = await supabase.from("client_tags").insert(records);
       if (error) throw error;
-      
+
       return { data: true, error: null };
-    } catch (err: any) {
-      console.error("[Service Error] clientService.tagMany:", err);
-      return { data: false, error: err.message };
+    } catch (err: unknown) {
+      logger.error("[Service Error] clientService.tagMany:", err);
+      return { data: false, error: err instanceof Error ? err.message : "Unknown error" };
     }
   }
 };

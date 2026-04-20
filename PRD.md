@@ -26,9 +26,9 @@ Uma plataforma unificada, intuitiva e instalável (PWA) que centraliza a gestão
 | Estilização | Tailwind CSS + shadcn/ui |
 | Animações | Framer Motion |
 | Backend | Supabase (PostgreSQL + Auth + Edge Functions + Realtime) |
-| IA | Supabase Edge Functions + Lovable AI Gateway / Hugging Face |
+| IA | Supabase Edge Functions + AI Proxy Gateway / Hugging Face |
 | PWA | vite-plugin-pwa + Service Worker |
-| Deploy | Lovable Cloud |
+| Deploy | Cloud Infrastructure |
 
 ---
 
@@ -167,7 +167,7 @@ Uma plataforma unificada, intuitiva e instalável (PWA) que centraliza a gestão
 - Geração de textos promocionais
 - Modelos customizáveis
 
-### 5.5 Lovable AI Gateway
+### 5.5 AI Proxy Gateway
 - Geração de textos via Edge Function
 - Fallback quando Hugging Face não configurado
 

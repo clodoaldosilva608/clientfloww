@@ -7,6 +7,7 @@
  */
 
 import { supabase } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
 import type { Plan, Subscription, PlanLimits, ServiceResponse } from "@/types/database";
 
 export const billingService = {
@@ -15,20 +16,20 @@ export const billingService = {
    */
   async getPlans(): Promise<ServiceResponse<Plan[]>> {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("plans")
         .select("*")
         .order("price", { ascending: true });
 
       if (error) {
-        console.error("[Billing] Failed to fetch plans:", error.message);
+        logger.error("[Billing] Failed to fetch plans:", error.message);
         return { data: null, error: error.message };
       }
 
       return { data: data as Plan[], error: null };
-    } catch (err: any) {
-      console.error("[Billing] Critical error fetching plans:", err);
-      return { data: null, error: err.message };
+    } catch (err: unknown) {
+      logger.error("[Billing] Critical error fetching plans:", err);
+      return { data: null, error: err instanceof Error ? err.message : "Unknown error" };
     }
   },
 
@@ -39,7 +40,7 @@ export const billingService = {
     try {
       if (!organizationId) return { data: null, error: "Missing organization ID" };
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("subscriptions")
         .select("*")
         .eq("organization_id", organizationId)
@@ -48,7 +49,7 @@ export const billingService = {
         .maybeSingle();
 
       if (error) {
-        console.error("[Billing] Failed to fetch subscription:", error.message);
+        logger.error("[Billing] Failed to fetch subscription:", error.message);
         return { data: null, error: error.message };
       }
 
@@ -56,22 +57,22 @@ export const billingService = {
         const planId = data.plan_id || data.plan;
         // Se existir um ID de plano (ou nome), busca na tabela plans
         if (planId && typeof planId === "string") {
-          const { data: planData } = await (supabase as any)
+          const { data: planData } = await supabase
              .from("plans")
              .select("*")
              .eq("id", planId)
              .maybeSingle();
-          
+
           if (planData) {
-             data.plan = planData;
+             (data as Subscription).plan = planData as Plan;
           }
         }
       }
 
       return { data: data as Subscription | null, error: null };
-    } catch (err: any) {
-      console.error("[Billing] Critical error fetching subscription:", err);
-      return { data: null, error: err.message };
+    } catch (err: unknown) {
+      logger.error("[Billing] Critical error fetching subscription:", err);
+      return { data: null, error: err instanceof Error ? err.message : "Unknown error" };
     }
   },
 
@@ -93,8 +94,8 @@ export const billingService = {
         data: sub.plan.limits as PlanLimits,
         error: null
       };
-    } catch (err: any) {
-      console.error("[Billing] Error getting plan limits:", err);
+    } catch (err: unknown) {
+      logger.error("[Billing] Error getting plan limits:", err);
       return { data: { clients: 50, campaigns: 5, automations: 2, messages_per_month: 500 }, error: null };
     }
   },
@@ -150,14 +151,14 @@ export const billingService = {
       });
 
       if (error) {
-        console.error("[Billing] Checkout error:", error);
+        logger.error("[Billing] Checkout error:", error);
         return { data: null, error: error.message || "Failed to create checkout" };
       }
 
       return { data: { url: data.url }, error: null };
-    } catch (err: any) {
-      console.error("[Billing] Critical checkout error:", err);
-      return { data: null, error: err.message };
+    } catch (err: unknown) {
+      logger.error("[Billing] Critical checkout error:", err);
+      return { data: null, error: err instanceof Error ? err.message : "Unknown error" };
     }
   },
 
@@ -174,14 +175,14 @@ export const billingService = {
       });
 
       if (error) {
-        console.error("[Billing] Portal error:", error);
+        logger.error("[Billing] Portal error:", error);
         return { data: null, error: error.message || "Failed to open portal" };
       }
 
       return { data: { url: data.url }, error: null };
-    } catch (err: any) {
-      console.error("[Billing] Critical portal error:", err);
-      return { data: null, error: err.message };
+    } catch (err: unknown) {
+      logger.error("[Billing] Critical portal error:", err);
+      return { data: null, error: err instanceof Error ? err.message : "Unknown error" };
     }
   },
 
@@ -199,8 +200,8 @@ export const billingService = {
       }
 
       return { data: true, error: null };
-    } catch (err: any) {
-      return { data: false, error: err.message };
+    } catch (err: unknown) {
+      return { data: false, error: err instanceof Error ? err.message : "Unknown error" };
     }
   },
 
@@ -221,7 +222,7 @@ export const billingService = {
       const [clientsRes, campaignsRes, automationsRes, messagesRes] = await Promise.all([
         supabase.from("clients").select("*", { count: "exact", head: true }).eq("organization_id", organizationId),
         supabase.from("campaigns").select("*", { count: "exact", head: true }).eq("organization_id", organizationId),
-        (supabase as any).from("flows").select("*", { count: "exact", head: true }).eq("organization_id", organizationId),
+        supabase.from("flows").select("*", { count: "exact", head: true }).eq("organization_id", organizationId),
         supabase.from("message_logs").select("*", { count: "exact", head: true })
           .eq("organization_id", organizationId)
           .gte("created_at", startOfMonth.toISOString())
@@ -236,9 +237,9 @@ export const billingService = {
         },
         error: null
       };
-    } catch (err: any) {
-      console.error("[Billing] Usage stats error:", err);
-      return { data: null, error: err.message };
+    } catch (err: unknown) {
+      logger.error("[Billing] Usage stats error:", err);
+      return { data: null, error: err instanceof Error ? err.message : "Unknown error" };
     }
   }
 };
