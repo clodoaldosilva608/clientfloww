@@ -21,6 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAI } from "@/hooks/useAI";
 import { processUserMessage, runAutonomousSellCycle, gerarInsightsDashboard } from "@/services/ai.orchestrator";
 import { getAIServiceStatus } from "@/services/ai.service";
+import { integrationService } from "@/services/integration.service";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -90,18 +91,22 @@ export function AICopilot() {
   // Welcome message
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      const status = getAIServiceStatus();
-      setMessages([{
-        id: "welcome",
-        role: "assistant",
-        content: `👋 Olá! Sou o **ClientFlow Copilot**, seu assistente de IA.\n\n${
-          status.configured 
-            ? "🟢 Conectado ao Hugging Face — IA real ativa!" 
-            : "🟡 Hugging Face não configurado — usando IA local"
-        }\n\nPosso:\n• 📢 Criar campanhas automaticamente\n• 🏷️ Segmentar seus clientes\n• 🚨 Identificar clientes em risco\n• ✍️ Gerar mensagens de marketing\n• 📊 Analisar seu dashboard\n\nDigite sua pergunta ou use os atalhos abaixo!`,
-        timestamp: new Date(),
-        source: "system",
-      }]);
+      // Fetch Gemini config status to check if it's active
+      integrationService.getConfig("gemini", organization?.id || "").then(({ data }) => {
+        const isGeminiActive = data && data.config?.api_key;
+        
+        setMessages([{
+          id: "welcome",
+          role: "assistant",
+          content: `👋 Olá! Sou o **ClientFlow Copilot**, seu assistente de IA.\n\n${
+            isGeminiActive 
+              ? "🟢 Conectado ao **Google Gemini** — Gerenciando tudo automaticamente para você!" 
+              : "🟡 Inteligência Artificial pendente — por favor, ative nas integrações"
+          }\n\nPosso:\n• 📢 Criar campanhas automaticamente\n• 🏷️ Segmentar seus clientes\n• 🚨 Identificar clientes em risco\n• ✍️ Gerar mensagens de marketing\n• 📊 Analisar seu dashboard\n\nDigite sua pergunta ou use os atalhos abaixo!`,
+          timestamp: new Date(),
+          source: "system",
+        }]);
+      });
     }
   }, [isOpen, messages.length]);
 

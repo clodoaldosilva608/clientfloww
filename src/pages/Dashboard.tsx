@@ -85,7 +85,7 @@ export default function Dashboard() {
     enabled: !!organization?.id,
   });
 
-  if (statsLoading || clientsLoading || messagesLoading) {
+  if (!organization?.id || statsLoading || clientsLoading || messagesLoading) {
     return (
       <div className="p-8 flex flex-col items-center justify-center min-h-[70vh]">
         <motion.div 
@@ -94,7 +94,9 @@ export default function Dashboard() {
         >
           <Zap className="h-12 w-12 text-primary" />
         </motion.div>
-        <p className="mt-4 font-black uppercase tracking-[0.3em] text-[10px] text-zinc-500 italic">Sincronizando Nexus Engine...</p>
+        <p className="mt-4 font-black uppercase tracking-[0.3em] text-[10px] text-zinc-500 italic">
+          {!organization?.id ? "Criando espaço de trabalho..." : "Sincronizando Nexus Engine..."}
+        </p>
       </div>
     );
   }

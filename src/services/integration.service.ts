@@ -19,6 +19,14 @@ export const integrationService = {
         return { data: null, error: error.message };
       }
 
+      if (data && typeof data.config === 'string') {
+        try {
+          data.config = JSON.parse(data.config);
+        } catch (e) {
+          console.error("Erro ao fazer parse do config", e);
+        }
+      }
+
       return { data: (data as unknown) as IntegrationConfig, error: null };
     } catch (err: any) {
       console.error(`[System Error] integrationService.getConfig(${platform}):`, err);
@@ -33,16 +41,37 @@ export const integrationService = {
 
       if (!platform) return { data: false, error: "Platform is required" };
 
-      const { error } = await (supabase as any)
+      const { data: existing } = await (supabase as any)
         .from("integration_configs")
-        .upsert({
-          user_id: user.id,
-          organization_id: organizationId,
-          platform,
-          is_active: isActive,
-          config: config as any,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: "organization_id,platform" }); 
+        .select("id")
+        .eq("organization_id", organizationId)
+        .eq("platform", platform)
+        .maybeSingle();
+
+      const payload = {
+        user_id: user.id,
+        organization_id: organizationId,
+        platform,
+        provider: platform, // Evita violação de not-null na coluna provider
+        is_active: isActive,
+        config: config as any,
+        updated_at: new Date().toISOString(),
+      };
+
+      let error = null;
+
+      if (existing?.id) {
+        const { error: updateErr } = await (supabase as any)
+          .from("integration_configs")
+          .update(payload)
+          .eq("id", existing.id);
+        error = updateErr;
+      } else {
+        const { error: insertErr } = await (supabase as any)
+          .from("integration_configs")
+          .insert(payload);
+        error = insertErr;
+      }
 
       if (error) {
         console.error(`[Service Error] integrationService.saveConfig(${platform}):`, error.message);

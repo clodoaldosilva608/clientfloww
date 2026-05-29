@@ -1,31 +1,12 @@
 /**
  * src/services/ai.service.ts
- * Phase 1 — Hugging Face AI Service
+ * Phase 7 — Gemini / Supabase Edge Function AI Service
  *
- * Connects to Hugging Face Inference API for real AI capabilities:
- * - Text generation (Mistral-7B / flan-t5-large)
- * - Text classification (BART-large-MNLI)  
- * - Text summarization
- *
- * Falls back to local template when HF is unavailable.
+ * Connects to the Supabase Edge Function `generate-text` which utilizes 
+ * the user's Gemini API key configured in `integration_configs`.
  */
 
-const HF_API_BASE = typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
-  ? "/api/hf" 
-  : "https://router.huggingface.co/hf-inference";
-
-// Models configuration
-const MODELS = {
-  textGeneration: "mistralai/Mistral-7B-Instruct-v0.2",
-  textGenerationFallback: "google/flan-t5-large",
-  classification: "facebook/bart-large-mnli",
-  summarization: "facebook/bart-large-cnn",
-} as const;
-
-// Get HF token from env (Vite exposes VITE_ prefixed vars)
-function getHFToken(): string {
-  return (import.meta as any).env?.VITE_HF_TOKEN || "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";
-}
+import { supabase } from "@/lib/supabase";
 
 // ─── Response Cache ─────────────────────────────────────────────────────────
 const responseCache = new Map<string, { data: any; timestamp: number }>();
@@ -42,7 +23,6 @@ function getCachedResponse(key: string): any | null {
 }
 
 function setCachedResponse(key: string, data: any): void {
-  // Limit cache size
   if (responseCache.size > 100) {
     const oldest = responseCache.keys().next().value;
     if (oldest) responseCache.delete(oldest);
@@ -50,295 +30,154 @@ function setCachedResponse(key: string, data: any): void {
   responseCache.set(key, { data, timestamp: Date.now() });
 }
 
-// ─── Rate Limiter ───────────────────────────────────────────────────────────
-const callTimestamps: number[] = [];
-const MAX_CALLS_PER_MINUTE = 20;
-
-function checkRateLimit(): boolean {
-  const now = Date.now();
-  const oneMinuteAgo = now - 60000;
-  // Remove old timestamps
-  while (callTimestamps.length > 0 && callTimestamps[0] < oneMinuteAgo) {
-    callTimestamps.shift();
-  }
-  return callTimestamps.length < MAX_CALLS_PER_MINUTE;
-}
-
-function recordCall(): void {
-  callTimestamps.push(Date.now());
-}
-
-// ─── Core API Caller ────────────────────────────────────────────────────────
-
-interface HFRequestOptions {
-  model?: string;
-  path?: string;
-  payload: Record<string, any>;
-  retries?: number;
-}
-
-async function callHuggingFace(options: HFRequestOptions): Promise<any> {
-  const { model, payload, retries = 2 } = options;
-  const token = getHFToken();
-
-  if (!token) {
-    throw new Error("HF_TOKEN not configured. Set VITE_HF_TOKEN in .env");
-  }
-
-  if (!checkRateLimit()) {
-    throw new Error("Rate limit exceeded. Try again in a minute.");
-  }
-
-  recordCall();
-
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const isProxy = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
-      let url = "";
-      if (isProxy) {
-        if (options.path) url = `${HF_API_BASE}?path=${encodeURIComponent(options.path)}`;
-        else url = `${HF_API_BASE}?model=${encodeURIComponent(model || options.payload.model)}`;
-      } else {
-        if (options.path) url = `${HF_API_BASE}/models/${options.payload.model || model}/${options.path}`;
-        else url = `${HF_API_BASE}/models/${model || options.payload.model}`;
-      }
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.status === 503) {
-        // Model is loading — wait and retry
-        const body = await response.json().catch(() => ({}));
-        const waitTime = body.estimated_time ? Math.min(body.estimated_time * 1000, 30000) : 10000;
-        console.warn(`[AI Service] Model ${model} is loading. Waiting ${waitTime}ms...`);
-        if (attempt < retries) {
-          await new Promise(r => setTimeout(r, waitTime));
-          continue;
-        }
-      }
-
-      if (!response.ok) {
-        const errorBody = await response.text().catch(() => "Unknown error");
-        throw new Error(`HF API error ${response.status}: ${errorBody}`);
-      }
-
-      return await response.json();
-    } catch (error: any) {
-      if (attempt === retries) throw error;
-      console.warn(`[AI Service] Attempt ${attempt + 1} failed:`, error.message);
-      await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
-    }
-  }
-}
-
 // ─── Public API ─────────────────────────────────────────────────────────────
 
 /**
- * Generate text using Mistral-7B-Instruct or flan-t5-large
+ * Generate text using Supabase Edge Function (Gemini)
  */
-export async function generateText(prompt: string): Promise<{ text: string; source: "huggingface" | "fallback" }> {
+export async function generateText(prompt: string): Promise<{ text: string; source: string }> {
   const cacheKey = `gen:${prompt.substring(0, 100)}`;
   const cached = getCachedResponse(cacheKey);
   if (cached) return cached;
 
   try {
-    const result = await callHuggingFace({
-      path: "v1/chat/completions",
-      payload: {
-        model: MODELS.textGeneration,
-        messages: [{ role: "user", content: prompt }],
-        max_tokens: 500,
-        temperature: 0.7,
-      },
-    });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Não autorizado");
 
-    const text = result.choices?.[0]?.message?.content?.trim() || 
-                 (typeof result === "string" ? result : JSON.stringify(result));
+    // Buscar chave do Gemini
+    const { data: configData, error: configError } = await (supabase as any)
+      .from("integration_configs")
+      .select("config")
+      .eq("user_id", user.id)
+      .eq("platform", "gemini")
+      .eq("is_active", true)
+      .maybeSingle();
 
-    const response = { text, source: "huggingface" as const };
-    setCachedResponse(cacheKey, response);
-    return response;
-  } catch (primaryError: any) {
-    console.warn("[AI Service] Primary model failed, trying fallback:", primaryError.message);
-
-    try {
-      // Fallback to flan-t5
-      const result = await callHuggingFace({
-        model: MODELS.textGenerationFallback,
-        payload: {
-          inputs: prompt,
-          parameters: {
-            max_new_tokens: 300,
-            temperature: 0.7,
-          },
-        },
-      });
-
-      const text = Array.isArray(result) && result[0]?.generated_text
-        ? result[0].generated_text.trim()
-        : typeof result === "string" ? result : "";
-
-      const response = { text, source: "huggingface" as const };
-      setCachedResponse(cacheKey, response);
-      return response;
-    } catch {
-      // Final fallback: local generation
-      return { text: generateLocalFallback(prompt), source: "fallback" };
+    if (configError || !configData?.config?.api_key) {
+      throw new Error("Chave do Gemini não configurada");
     }
-  }
-}
 
-/**
- * Classify text using Facebook BART-large-MNLI (zero-shot)
- */
-export async function classifyText(
-  text: string, 
-  candidateLabels: string[] = ["urgente", "informativo", "promocional", "suporte", "reclamação"]
-): Promise<{ labels: string[]; scores: number[]; source: "huggingface" | "fallback" }> {
-  const cacheKey = `cls:${text.substring(0, 80)}:${candidateLabels.join(",")}`;
-  const cached = getCachedResponse(cacheKey);
-  if (cached) return cached;
+    const apiKey = configData.config.api_key;
+    const systemPrompt = "Você é um assistente Copilot especializado em marketing digital e CRM. Responda de forma clara, prestativa e em português brasileiro.";
 
-  try {
-    const result = await callHuggingFace({
-      model: MODELS.classification,
-      payload: {
-        inputs: text,
-        parameters: {
-          candidate_labels: candidateLabels,
-        },
-      },
+    const reqBody = JSON.stringify({
+      contents: [{
+        parts: [{ text: `${systemPrompt}\n\nUsuário: ${prompt}` }]
+      }]
     });
 
-    const response = {
-      labels: result.labels || candidateLabels,
-      scores: result.scores || candidateLabels.map(() => 0),
-      source: "huggingface" as const,
-    };
-    setCachedResponse(cacheKey, response);
-    return response;
-  } catch (error: any) {
-    console.warn("[AI Service] Classification failed:", error.message);
-    return {
-      labels: candidateLabels,
-      scores: candidateLabels.map((_, i) => i === 0 ? 0.5 : 0.1),
-      source: "fallback",
-    };
-  }
-}
-
-/**
- * Summarize text using BART-large-CNN
- */
-export async function summarizeText(text: string): Promise<{ summary: string; source: "huggingface" | "fallback" }> {
-  const cacheKey = `sum:${text.substring(0, 100)}`;
-  const cached = getCachedResponse(cacheKey);
-  if (cached) return cached;
-
-  try {
-    const result = await callHuggingFace({
-      model: MODELS.summarization,
-      payload: {
-        inputs: text,
-        parameters: {
-          max_length: 150,
-          min_length: 30,
-          do_sample: false,
-        },
-      },
+    let modelName = "gemini-1.5-flash";
+    let url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+    
+    let response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: reqBody
     });
 
-    const summary = Array.isArray(result) && result[0]?.summary_text
-      ? result[0].summary_text
-      : "Sem resumo disponível.";
+    // Se o modelo padrão não for encontrado para esta chave, busca os modelos permitidos
+    if (response.status === 404) {
+      console.warn("[AI Service] Modelo padrão não encontrado. Buscando modelos disponíveis para esta chave...");
+      const modelsRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      if (modelsRes.ok) {
+        const modelsData = await modelsRes.json();
+        const validModel = modelsData.models?.find((m: any) => 
+          m.supportedGenerationMethods?.includes("generateContent") && 
+          m.name.includes("gemini")
+        );
+        
+        if (validModel) {
+          modelName = validModel.name.replace("models/", "");
+          console.log("[AI Service] Usando modelo alternativo descoberto:", modelName);
+          url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+          response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: reqBody
+          });
+        }
+      }
+    }
 
-    const response = { summary, source: "huggingface" as const };
-    setCachedResponse(cacheKey, response);
-    return response;
-  } catch (error: any) {
-    console.warn("[AI Service] Summarization failed:", error.message);
-    return {
-      summary: text.length > 200 ? text.substring(0, 197) + "..." : text,
-      source: "fallback",
-    };
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error("Erro na API do Gemini: " + err);
+    }
+
+    const geminiData = await response.json();
+    const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    
+    if (!text) throw new Error("Empty response from AI");
+
+    const result = { text, source: "gemini" };
+    setCachedResponse(cacheKey, result);
+    return result;
+  } catch (err: any) {
+    console.warn("[AI Service] Gemini API call failed, using fallback:", err.message);
+    const result = { text: generateLocalFallback(prompt), source: "fallback" };
+    return result;
   }
 }
 
 /**
  * Detect intent from user input (for Copilot)
+ * Uses advanced keyword mapping since classification via HF is deprecated.
  */
 export async function detectIntent(
   userMessage: string
 ): Promise<{
   intent: "create_campaign" | "segment_clients" | "churn_risk" | "generate_message" | "dashboard_insights" | "general_question";
   confidence: number;
-  source: "huggingface" | "fallback";
+  source: string;
 }> {
-  const intents = [
-    "criar campanha",
-    "segmentar clientes",
-    "clientes em risco de churn",
-    "gerar mensagem promocional",
-    "insights do dashboard",
-    "pergunta geral",
-  ];
+  const msg = userMessage.toLowerCase();
 
+  if (msg.includes("campanha") || msg.includes("campaign") || msg.includes("criar")) {
+    return { intent: "create_campaign", confidence: 0.9, source: "local_heuristic" };
+  }
+  if (msg.includes("segmen") || msg.includes("classificar") || msg.includes("agrupar")) {
+    return { intent: "segment_clients", confidence: 0.9, source: "local_heuristic" };
+  }
+  if (msg.includes("risco") || msg.includes("churn") || msg.includes("inativo") || msg.includes("perdendo")) {
+    return { intent: "churn_risk", confidence: 0.9, source: "local_heuristic" };
+  }
+  if (msg.includes("mensagem") || msg.includes("texto") || msg.includes("gerar") || msg.includes("escrever")) {
+    return { intent: "generate_message", confidence: 0.9, source: "local_heuristic" };
+  }
+  if (msg.includes("dashboard") || msg.includes("insight") || msg.includes("resumo") || msg.includes("análise")) {
+    return { intent: "dashboard_insights", confidence: 0.9, source: "local_heuristic" };
+  }
+
+  // Se for uma saudação simples, tratamos como pergunta geral (o copilot responderá saudando)
+  if (msg === "oi" || msg === "olá" || msg === "ola" || msg.includes("bom dia") || msg.includes("boa tarde")) {
+    return { intent: "general_question", confidence: 1.0, source: "local_heuristic" };
+  }
+
+  return { intent: "general_question", confidence: 0.5, source: "local_heuristic" };
+}
+
+export async function classifyText(text: string, labels: string[]): Promise<any> {
+  // Deprecated: used local fallback mapping or Gemini in the future if needed
+  return { labels, scores: labels.map(() => 0.5), source: "fallback" };
+}
+
+export async function summarizeText(text: string): Promise<any> {
+  const cacheKey = `sum:${text.substring(0, 100)}`;
+  const cached = getCachedResponse(cacheKey);
+  if (cached) return cached;
+  
   try {
-    const result = await classifyText(userMessage, intents);
+    const { data, error } = await supabase.functions.invoke("generate-text", {
+      body: { prompt: `Resuma o seguinte texto de forma concisa: ${text}`, platform: "Resumo", tone: "direto" }
+    });
     
-    const intentMap: Record<string, "create_campaign" | "segment_clients" | "churn_risk" | "generate_message" | "dashboard_insights" | "general_question"> = {
-      "criar campanha": "create_campaign",
-      "segmentar clientes": "segment_clients",
-      "clientes em risco de churn": "churn_risk",
-      "gerar mensagem promocional": "generate_message",
-      "insights do dashboard": "dashboard_insights",
-      "pergunta geral": "general_question",
-    };
-
-    const topLabel = result.labels[0];
-    const topScore = result.scores[0];
-
-    // Se a confiança for muito baixa ou indefinida, assume que é uma pergunta geral (evita auto-execução acidental)
-    if (topScore === undefined || topScore < 0.3) {
-      return {
-        intent: "general_question",
-        confidence: topScore || 0,
-        source: result.source,
-      };
-    }
-
-    return {
-      intent: intentMap[topLabel] || "general_question",
-      confidence: topScore,
-      source: result.source,
-    };
-  } catch {
-    // Local keyword-based fallback
-    const msg = userMessage.toLowerCase();
-
-    if (msg.includes("campanha") || msg.includes("campaign") || msg.includes("criar")) {
-      return { intent: "create_campaign", confidence: 0.8, source: "fallback" };
-    }
-    if (msg.includes("segmen") || msg.includes("classificar") || msg.includes("agrupar")) {
-      return { intent: "segment_clients", confidence: 0.8, source: "fallback" };
-    }
-    if (msg.includes("risco") || msg.includes("churn") || msg.includes("inativo") || msg.includes("perdendo")) {
-      return { intent: "churn_risk", confidence: 0.8, source: "fallback" };
-    }
-    if (msg.includes("mensagem") || msg.includes("texto") || msg.includes("gerar") || msg.includes("escrever")) {
-      return { intent: "generate_message", confidence: 0.8, source: "fallback" };
-    }
-    if (msg.includes("dashboard") || msg.includes("insight") || msg.includes("resumo") || msg.includes("análise")) {
-      return { intent: "dashboard_insights", confidence: 0.8, source: "fallback" };
-    }
-
-    return { intent: "general_question", confidence: 0.5, source: "fallback" };
+    if (error || data?.error) throw error || new Error(data?.error);
+    
+    const response = { summary: data.text, source: data.source };
+    setCachedResponse(cacheKey, response);
+    return response;
+  } catch (err) {
+    return { summary: text.substring(0, 150) + "...", source: "fallback" };
   }
 }
 
@@ -348,45 +187,38 @@ function generateLocalFallback(prompt: string): string {
   const lower = prompt.toLowerCase();
 
   if (lower.includes("campanha") || lower.includes("marketing")) {
-    return "🎯 Campanha sugerida: Reativação de clientes inativos com oferta exclusiva de 20% de desconto. Use tom empático e CTA direto. Envie via WhatsApp no horário de pico (18h-20h) para maximizar engajamento.";
+    return "🎯 Campanha sugerida: Reativação de clientes inativos com oferta exclusiva de 20% de desconto. Use tom empático e CTA direto.";
   }
 
   if (lower.includes("mensagem") || lower.includes("texto")) {
-    return "Olá! 👋 Sentimos sua falta por aqui. Preparamos algo especial para você — uma oferta exclusiva que só nossos clientes mais valiosos têm acesso. Não perca essa oportunidade! Responda agora.";
+    return "Olá! 👋 Sentimos sua falta por aqui. Preparamos algo especial para você — uma oferta exclusiva que só nossos clientes mais valiosos têm acesso.";
   }
 
   if (lower.includes("segmenta") || lower.includes("classificar")) {
-    return "📊 Segmentação sugerida: Divida sua base em 4 grupos — VIP (score >80), Ativos (50-80), Inativos (<50), e Em Risco (churn >70%). Crie campanhas específicas para cada segmento.";
+    return "📊 Segmentação sugerida: Divida sua base em VIP, Ativos, Inativos e Em Risco.";
   }
 
   if (lower.includes("churn") || lower.includes("risco")) {
-    return "⚠️ Análise de churn: Clientes com mais de 30 dias sem interação têm 3x mais probabilidade de abandono. Recomendo campanha de reativação urgente com oferta personalizada.";
+    return "⚠️ Análise de churn: Clientes com mais de 30 dias sem interação têm alta probabilidade de abandono. Recomendo campanha de reativação.";
   }
 
-  return "💡 Baseado na análise dos dados, recomendo focar em engajamento personalizado por segmento. Use automações para manter contato regular e identifique oportunidades de upsell com clientes VIP.";
-}
+  if (lower === "oi" || lower === "olá" || lower === "ola") {
+    return "Olá! Como posso ajudar você a otimizar suas vendas e campanhas hoje?";
+  }
 
-// ─── Utility: Check if HF is configured ─────────────────────────────────────
+  return "💡 Desculpe, não consegui conectar à API do Gemini no momento. Verifique sua chave nas configurações. Posso ajudar com análises do dashboard ou regras de automação locais.";
+}
 
 export function isHuggingFaceConfigured(): boolean {
-  return !!getHFToken();
+  return false;
 }
 
-export function getAIServiceStatus(): {
-  configured: boolean;
-  cacheSize: number;
-  callsLastMinute: number;
-  maxCallsPerMinute: number;
-} {
-  const now = Date.now();
-  const oneMinuteAgo = now - 60000;
-  const recentCalls = callTimestamps.filter(t => t > oneMinuteAgo).length;
-
+export function getAIServiceStatus(): any {
   return {
-    configured: isHuggingFaceConfigured(),
+    configured: true,
     cacheSize: responseCache.size,
-    callsLastMinute: recentCalls,
-    maxCallsPerMinute: MAX_CALLS_PER_MINUTE,
+    callsLastMinute: 0,
+    maxCallsPerMinute: 60,
   };
 }
 

@@ -23,14 +23,16 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
     if (userError || !user) throw new Error("Não autorizado");
 
-    // Check for Hugging Face config
-    const { data: hfConfig } = await supabaseClient
+    // Fetch all active AI integrations for the user
+    const { data: aiConfigs } = await supabaseClient
       .from("integration_configs")
       .select("*")
       .eq("user_id", user.id)
-      .eq("platform", "huggingface")
-      .eq("is_active", true)
-      .maybeSingle();
+      .in("platform", ["gemini", "huggingface"])
+      .eq("is_active", true);
+
+    const geminiConfig = aiConfigs?.find(c => c.platform === "gemini");
+    const hfConfig = aiConfigs?.find(c => c.platform === "huggingface");
 
     const systemPrompt = `Você é um especialista em marketing digital especializado no mercado brasileiro.
 Gere textos promocionais para "${platform || "WhatsApp/Redes Sociais"}".
@@ -40,7 +42,38 @@ Regras:
 - Use emojis e CTA forte.
 - Responda APENAS com o conteúdo da mensagem.`;
 
-    // IF Hugging Face is configured, use it
+    // IF Gemini is configured, prioritize it
+    if (geminiConfig && geminiConfig.config?.api_key) {
+      const geminiToken = geminiConfig.config.api_key;
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiToken}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `${systemPrompt}\n\nAssunto/Prompt do Usuário: ${prompt}`
+            }]
+          }]
+        })
+      });
+
+      if (!response.ok) {
+        const err = await response.text();
+        console.error("Gemini Error:", err);
+        throw new Error("Erro na API do Gemini: " + err);
+      }
+
+      const geminiData = await response.json();
+      const generatedText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+      return new Response(JSON.stringify({ text: generatedText, source: "Google Gemini" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // IF Hugging Face is configured, use it as fallback
     if (hfConfig && hfConfig.config?.api_token) {
       const model = hfConfig.config.model_id || "mistralai/Mistral-7B-Instruct-v0.2";
       const hfToken = hfConfig.config.api_token;

@@ -147,7 +147,7 @@ const App = () => {
                 } />
                 <Route path="/admin" element={
                   <AdminRoute>
-                    <AppLayout><AdminPanel /></AppLayout>
+                    <AdminPanel />
                   </AdminRoute>
                 } />
                 <Route path="*" element={<NotFound />} />

@@ -4,6 +4,7 @@ import { MobileBottomNav } from "./MobileNav";
 import ErrorBoundary from "./ErrorBoundary";
 
 import { CommandMenu } from "./CommandMenu";
+import { OnboardingModal } from "./OnboardingModal";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -30,6 +31,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           </ErrorBoundary>
         </div>
         <MobileBottomNav />
+        <OnboardingModal />
       </main>
     </div>
   );

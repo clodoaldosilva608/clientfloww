@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { 
   MessageCircle, Send, Instagram, Bot, Check, X, 
   Loader2, ExternalLink, Zap, Plug, ShieldCheck, 
-  Cpu, HelpCircle, ArrowRight, Copy, Info, AlertTriangle
+  Cpu, HelpCircle, ArrowRight, Copy, Info, AlertTriangle, Facebook
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,86 +34,108 @@ interface IntegrationCardProps {
 const integrations: IntegrationCardProps[] = [
   {
     platform: "telegram",
-    title: "Telegram Bot",
-    description: "Orquestração completa via Bot API para envios instantâneos e notificações.",
+    title: "Telegram",
+    description: "Conecte sua conta do Telegram para receber notificações e conversar com clientes.",
     icon: <Send className="w-6 h-6" />,
     color: "from-sky-400 to-blue-600",
     fields: [
-      { key: "bot_token", label: "Token do Bot (API)", placeholder: "123456:ABC-DEF...", type: "password" },
-      { key: "default_chat_id", label: "ID de Chat Padrão", placeholder: "-100..." },
+      { key: "profile_link", label: "Link do Perfil do Telegram", placeholder: "https://t.me/seuperfil" },
     ],
-    docsUrl: "https://t.me/BotFather",
     guideSteps: [
       { 
-        title: "1. Inicie o @BotFather", 
-        desc: "No seu Telegram, busque por @BotFather (o bot oficial da Meta/Telegram para criar bots).",
-        link: "https://t.me/BotFather",
-        linkText: "Abrir no Telegram" 
+        title: "1. Copie seu Link", 
+        desc: "Abra seu perfil do Telegram, vá nas configurações e copie o link do seu username (ex: https://t.me/seunome)." 
       },
       { 
-        title: "2. Crie um Novo Robô", 
-        desc: "Envie o comando /newbot. Siga as instruções para dar um nome e um username ao seu bot." 
-      },
-      { 
-        title: "3. Pegue sua Chave Token", 
-        desc: "O BotFather retornará um Token API (ex: 12345:ABC...). Copie e cole aqui no campo 'Token do Bot'." 
+        title: "2. Cole e Conecte", 
+        desc: "Cole o link no campo acima e clique em salvar para vincular seu perfil." 
       }
     ]
   },
   {
     platform: "whatsapp",
-    title: "WhatsApp Cloud API",
-    description: "Conectividade oficial via Meta Business para escala e confiança.",
+    title: "WhatsApp",
+    description: "Conecte seu WhatsApp para gerenciar conversas e clientes diretamente.",
     icon: <MessageCircle className="w-6 h-6" />,
     color: "from-green-400 to-emerald-600",
     fields: [
-      { key: "phone_number_id", label: "Phone Number ID", placeholder: "1234567890" },
-      { key: "access_token", label: "Token de Acesso Temporário/Permanente", placeholder: "EAAG...", type: "password" },
+      { key: "group_link_or_number", label: "Link do Grupo ou Número de WhatsApp", placeholder: "https://chat.whatsapp.com/... ou +5511999999999" },
     ],
-    docsUrl: "https://developers.facebook.com/",
     guideSteps: [
       { 
-        title: "1. Portal de Desenvolvedores", 
-        desc: "Crie uma conta em developers.facebook.com e adicione o produto 'WhatsApp'.",
-        link: "https://developers.facebook.com/",
-        linkText: "Acessar Portal Meta" 
+        title: "1. Informe o Link ou Número", 
+        desc: "Cole o link de convite do grupo que você administra, ou informe seu número de WhatsApp com código do país." 
       },
       { 
-        title: "2. Configure o App", 
-        desc: "Selecione seu aplicativo e vá em 'WhatsApp' -> 'Configuração de API'." 
-      },
-      { 
-        title: "3. Copie as Credenciais", 
-        desc: "Copie o 'Phone Number ID' e o 'Acesso Temporário' e preencha os campos ao lado." 
+        title: "2. Conecte sua Conta", 
+        desc: "Preencha o campo e salve. O sistema fará a vinculação automática baseada nesse contato." 
       }
     ]
   },
   {
-    platform: "huggingface",
-    title: "IA Especializada (Hugging Face)",
-    description: "Execute modelos Llama, Stable Diffusion e outros via nuvem HF.",
-    icon: <Cpu className="w-6 h-6 text-white" />,
-    color: "from-amber-400 to-orange-600",
+    platform: "instagram",
+    title: "Instagram",
+    description: "Vincule seu Instagram para interagir via Direct e automatizar respostas.",
+    icon: <Instagram className="w-6 h-6" />,
+    color: "from-fuchsia-500 to-pink-600",
     fields: [
-      { key: "api_token", label: "Token de Acesso (Read)", placeholder: "hf_...", type: "password" },
+      { key: "profile_link", label: "Link do Perfil do Instagram", placeholder: "https://instagram.com/seuperfil" },
     ],
-    docsUrl: "https://huggingface.co/settings/tokens",
     guideSteps: [
       { 
-        title: "1. Crie sua conta HF", 
-        desc: "Acesse a maior plataforma de IA do mundo e crie sua conta gratuita.",
-        link: "https://huggingface.co/join",
-        linkText: "Registrar no HF" 
+        title: "1. Acesse seu Instagram", 
+        desc: "Abra o seu perfil no navegador ou app e copie a URL / link do seu perfil." 
       },
       { 
-        title: "2. Vá em Configurações de Token", 
-        desc: "No seu perfil, clique em Settings -> Access Tokens.",
-        link: "https://huggingface.co/settings/tokens",
-        linkText: "Gerenciar Tokens" 
+        title: "2. Cole o Link", 
+        desc: "Cole o link no campo acima para que possamos conectar o seu Direct." 
+      }
+    ]
+  },
+  {
+    platform: "facebook",
+    title: "Facebook",
+    description: "Conecte sua Página do Facebook para centralizar o atendimento.",
+    icon: <Facebook className="w-6 h-6" />,
+    color: "from-blue-600 to-indigo-700",
+    fields: [
+      { key: "profile_link", label: "Link da Página do Facebook", placeholder: "https://facebook.com/suapagina" },
+    ],
+    guideSteps: [
+      { 
+        title: "1. Acesse sua Página", 
+        desc: "Abra a página do Facebook que você administra." 
       },
       { 
-        title: "3. Gere um 'Read Token'", 
-        desc: "Crie um novo token com permissão 'Read', copie (hf_...) e cole no campo ao lado." 
+        title: "2. Copie a URL", 
+        desc: "Copie o link direto da página e cole aqui para conectar." 
+      }
+    ]
+  },
+  {
+    platform: "gemini",
+    title: "Google Gemini AI",
+    description: "Integre sua conta pessoal do Google Gemini para gerar respostas e conteúdos via IA gratuitamente ou com baixo custo.",
+    icon: <Bot className="w-6 h-6" />,
+    color: "from-blue-500 to-purple-600",
+    fields: [
+      { key: "api_key", label: "Chave de API (Google AI Studio)", placeholder: "Insira sua chave API gerada...", type: "password" },
+    ],
+    docsUrl: "https://aistudio.google.com/app/apikey",
+    guideSteps: [
+      { 
+        title: "1. Acesse o Google AI Studio", 
+        desc: "Faça login com sua conta Google padrão.",
+        link: "https://aistudio.google.com/app/apikey",
+        linkText: "Abrir AI Studio" 
+      },
+      { 
+        title: "2. Crie a Chave", 
+        desc: "Clique no botão 'Create API Key' (Criar chave de API)." 
+      },
+      { 
+        title: "3. Copie e Cole", 
+        desc: "Copie a chave gerada e cole no campo ao lado. Isso fará o ClientFlow usar sua própria cota do Gemini." 
       }
     ]
   },
@@ -201,7 +223,7 @@ function IntegrationCard({ platform, title, description, icon, color, fields, do
   // FIX: accept activeOverride to avoid React closure stale-state bug
   // when called from switch toggle, pass the new value directly
   const saveConfig = async (activeOverride?: boolean) => {
-    const activeValue = activeOverride !== undefined ? activeOverride : isActive;
+    const activeValue = typeof activeOverride === 'boolean' ? activeOverride : isActive;
     if (!organization?.id) return;
     setSaving(true);
     try {
@@ -274,9 +296,17 @@ function IntegrationCard({ platform, title, description, icon, color, fields, do
           </div>
 
           <div className="flex items-center justify-between pt-4 border-t border-zinc-100 dark:border-zinc-800 mt-2">
-             <Button size="sm" onClick={saveConfig} disabled={saving} className="w-full rounded-xl h-10 premium-gradient text-white text-[10px] font-black uppercase tracking-widest">
+             <Button 
+               size="sm" 
+               onClick={() => {
+                 setIsActive(true);
+                 saveConfig(true);
+               }} 
+               disabled={saving} 
+               className="w-full rounded-xl h-10 premium-gradient text-white text-[10px] font-black uppercase tracking-widest"
+             >
                 {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" /> : <Zap className="h-3.5 w-3.5 mr-2" />}
-                Sincronizar Cloud Flow
+                Salvar Configurações
              </Button>
           </div>
        </div>

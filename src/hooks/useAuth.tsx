@@ -24,7 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchUserOrg = async (userId: string) => {
     try {
       // Usamos (supabase as any) para ignorar o erro de tabela inexistente nos tipos locais
-      const { data, error } = await (supabase as any)
+      const { data: orgList, error } = await (supabase as any)
         .from("organization_users")
         .select(`
           organization_id,
@@ -32,10 +32,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           organizations (id, name)
         `)
         .eq("user_id", userId)
-        .maybeSingle(); 
+        .limit(1);
+
+      const data = orgList?.[0];
 
       if (error || !data) {
-        console.warn("[AUTH] No organization found for user:", userId);
+        console.warn("[AUTH] No organization found for user, creating default:", userId);
+        // Criar organização default
+        const { data: newOrg, error: orgError } = await (supabase as any)
+          .from("organizations")
+          .insert({ name: "Minha Empresa" })
+          .select("id, name")
+          .single();
+          
+        if (newOrg) {
+          await (supabase as any)
+            .from("organization_users")
+            .insert({
+              organization_id: newOrg.id,
+              user_id: userId,
+              role_name: "owner"
+            });
+            
+          const org = { id: newOrg.id, name: newOrg.name };
+          setOrganization(org);
+          setRole("owner");
+          return org;
+        }
+
         setOrganization(null);
         setRole(null);
         return;

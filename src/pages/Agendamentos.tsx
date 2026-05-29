@@ -7,18 +7,28 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { useAuth } from "@/hooks/useAuth";
+
 export default function Agendamentos() {
   const queryClient = useQueryClient();
+  const { organization } = useAuth();
 
   const { data: campaigns, isLoading } = useQuery({
-    queryKey: ["campaigns"],
-    queryFn: () => campaignService.list(),
+    queryKey: ["campaigns", organization?.id],
+    queryFn: async () => {
+      if (!organization?.id) return { data: [], error: null };
+      return await campaignService.list(organization.id);
+    },
+    enabled: !!organization?.id
   });
 
-  const appointments = (campaigns || []).filter(c => c.status === "scheduled");
+  const appointments = (campaigns?.data || []).filter(c => c.status === "scheduled");
 
   const cancelMutation = useMutation({
-    mutationFn: (id: string) => campaignService.updateStatus(id, "draft"),
+    mutationFn: (id: string) => {
+      if (!organization?.id) throw new Error("Unauthorized");
+      return campaignService.updateStatus(id, organization.id, "draft");
+    },
     onSuccess: () => {
       toast.success("Agendamento cancelado (movido para rascunhos)");
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
